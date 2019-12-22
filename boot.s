@@ -108,6 +108,9 @@ main:
         mov $msg, %si
         call print_string
 
+        mov $0x0, %si
+        call print_hex
+
         # Loop here forever
 loop:
         jmp main

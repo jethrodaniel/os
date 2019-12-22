@@ -1,4 +1,4 @@
-# tell the assembler that we're using 16 bit mode (an x86 thing)
+# tell the assembler that we're using 16 bit real mode
 .code16
 
 .global print_string
@@ -6,8 +6,12 @@
 # subroutine to print a string.
 #
 # ```
-# si = address of the null-terminated string (byte array)
+# si = address of the null-terminated string
 # ```
+#
+# Return:
+#
+# - sets al to each character, so al will be '0' on return
 #
 print_string:
         # push all registers onto the stack

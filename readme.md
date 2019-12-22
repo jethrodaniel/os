@@ -27,6 +27,7 @@ thanks y'all.
 - https://50linesofco.de/post/2018-02-28-writing-an-x86-hello-world-bootloader-with-assembly
 - http://joebergeron.io/posts/post_two.html
 - https://geosn0w.github.io/An-Introduction-To-Intel-x86-Assembly/
+- http://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html
 
 I'd start with these
 
