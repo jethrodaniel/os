@@ -92,7 +92,7 @@
 
 # ---
 
-# tell the assembler that we're using 16 bit mode (an x86 thing)
+# tell the assembler that we're using 16 bit real mode
 .code16
 
 # make our label `main` available to the outside.
@@ -108,10 +108,9 @@ main:
         mov $msg, %si
         call print_string
 
-        ret
-#         # Loop here forever
-# loop:
-#         jmp loop-main
+        # Loop here forever
+loop:
+        jmp main
 
 #
 # .data
@@ -121,7 +120,7 @@ main:
 msg:
         .asciz "Hello world!"
 
-# include our subroutine
+# include our subroutines
 .include "print_string.s"
 
 # pad the assembler's outputed binary with zeroes to make it 510 bytes long
