@@ -6,11 +6,11 @@ floppy: build
 
 build:
 	as -o boot.o boot.s
-	ld -o boot.bin --oformat binary -e main -Ttext 0x7c00 -o boot.bin boot.o
+	ld -o boot.bin --oformat binary -e _start -Ttext 0x7c00 -o boot.bin boot.o
 	wc -c boot.bin
 
 hex: build
-	hexdump boot.bin
+	hexdump -v boot.bin
 
 clean:
 	rm -f *.o *.bin
