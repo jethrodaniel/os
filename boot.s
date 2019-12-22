@@ -90,6 +90,8 @@
 # ```
 #
 
+# ---
+
 # tell the assembler that we're using 16 bit mode (an x86 thing)
 .code16
 
@@ -97,9 +99,24 @@
 # Typically this is called `_start`.
 .global main
 
+#
+# .text
+#
+
 main:
         # loads the address of msg into register si
         mov $msg, %si
+        call print_string
+
+# subroutine to print a string.
+#
+# ```
+# si = address of the null-terminated string (byte array)
+# ```
+#
+print_string:
+        # push all registers onto the stack
+        pusha
 
         # loads 0xe (function number for int 0x10) into ah
         mov $0xe, %ah
@@ -107,23 +124,36 @@ main:
 print_char:
         # loads the byte from the address in si into al and increments si
         lodsb
+
         # compares content in AL with zero
         cmp $0, %al
-        # if al == 0, go to "done"
+
+        # if al == '0', go to "done"
         je done
+
         # prints the character in al to screen
         int $0x10
+
         # repeat with the next byte
         jmp print_char
 done:
-  # stop execution
-  hlt
+        # stop execution
+
+        # pop all registers off the stack
+        pusha
+
+        # return from the subroutine
+        ret
+
+#
+# .data
+#
 
 # stores the string (plus a byte with value "0") and gives us access via $msg
 msg:
         .asciz "Hello world!"
 
-# pad with zeroes to make it 510 bytes long
+# pad the assembler's outputed binary with zeroes to make it 510 bytes long
 .fill 510-(.-main), 1, 0
 
 # Add the magic `0x55aa` that tells the BIOS we're a boot sector, but since
