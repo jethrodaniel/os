@@ -1,16 +1,31 @@
 # os
 
-What is a bootloader?
+an x86 operating system, for education's sake.
 
-When your computer boots up, it starts the BIOS (Basic Input/Output System),
-which:
+### prereqs
 
-- performs hardware tests (memory checks)
-- enables changing various settings
-- prints logo, diagnostic, etc
-- attempts to load an operating system from any bootable media
+```
+sudo apt-get install build-essential qemu make
+```
 
-When trying to load an OS, the BIOS reads the first 512 bytes from the boot
-devices and checks if the last two of these 512 bytes contain 0x55AA. If so,
-the BIOS moves the 512 bytes to the memory address 0x7c00 and treats whatever
-was at the beginning of the 512 bytes as code, i.e, the bootloader.
+### install
+
+```
+git clone https://github.com/jethrodaniel/os
+cd os
+make
+```
+
+### license
+
+MIT.
+
+### references
+
+thanks y'all.
+
+- https://50linesofco.de/post/2018-02-28-writing-an-x86-hello-world-bootloader-with-assembly
+- https://www.nayuki.io/page/a-fundamental-introduction-to-x86-assembly-programming
+- http://joebergeron.io/posts/post_two.html
+- https://geosn0w.github.io/An-Introduction-To-Intel-x86-Assembly/
+- https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
