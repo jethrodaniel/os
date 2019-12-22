@@ -25,7 +25,10 @@ MIT.
 thanks y'all.
 
 - https://50linesofco.de/post/2018-02-28-writing-an-x86-hello-world-bootloader-with-assembly
-- https://www.nayuki.io/page/a-fundamental-introduction-to-x86-assembly-programming
 - http://joebergeron.io/posts/post_two.html
 - https://geosn0w.github.io/An-Introduction-To-Intel-x86-Assembly/
+
+I'd start with these
+
 - https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
+- https://www.nayuki.io/page/a-fundamental-introduction-to-x86-assembly-programming

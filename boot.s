@@ -12,10 +12,13 @@
 #
 # When trying to load an OS, the BIOS reads the first 512 bytes from the boot
 # devices and checks if the last two of these 512 bytes contain `0x55AA`. If so,
-# the BIOS moves the 512 bytes to the memory address `0x7c00` and treats whatever
-# was at the beginning of the 512 bytes as code, i.e, the bootloader.
+# the BIOS moves the 512 bytes to the memory address `0x7c00` and treats
+# them as code.
 #
-# Run with
+# So it's important that this code actually take control, lest the CPU eat
+# all the memory until something grinds to a halt.
+#
+# Run this with
 #
 # ```
 # as -o boot.o boot.s
@@ -27,10 +30,10 @@
 # ```
 #
 # note:
-# - the binary format, because ld typically makes ELF files
-# - the text directive tells the assembler that we want our text segment
+# - `--oformat binary`, because ld typically makes ELF files
+# - `-e main -Ttext 0x7c00`- tell the assembler that we want our text segment
 #   to be available at `0x7c00`, which is were the BIOS will place our
-#   bootloader
+#   bootloader, and that we
 #
 # ### x86 assembly basics
 #
@@ -50,7 +53,42 @@
 #   - edi - destination index
 #   - esi - source index
 #
+# intel loves backward-compatability, so all the intel-compatible CPUS emulate
+# the oldest one, the 8086, which was 16-bit with no memory protection.
+#
 # the annoying `e` prefix means extended, since this is 32 bit, not 16.
+#
+# like so:
+#
+# ```
+# register eax
+#
+# 31                   15                       0
+# +---------------------|-----------------------+
+# |                     |         ax            |
+# +---------------------|-----------------------+
+#
+# ---------------- eax -------------------------
+# ```
+#
+# invoke a BIOS routine:
+#  - set eax to a BIOS defined value
+#  - trigger a specific interrupt
+
+# BIOS routines used:
+#
+# - print char to screen: http://www.ctyme.com/intr/rb-0106.htm
+#
+# ```
+# ah = 0eh
+# al = character to write
+# bh = page number
+# bl = foreground color (graphics modes only)
+#
+# return:
+# nothing
+# ```
+#
 
 # tell the assembler that we're using 16 bit mode (an x86 thing)
 .code16
@@ -62,8 +100,10 @@
 main:
         # loads the address of msg into register si
         mov $msg, %si
+
         # loads 0xe (function number for int 0x10) into ah
         mov $0xe, %ah
+
 print_char:
         # loads the byte from the address in si into al and increments si
         lodsb
@@ -83,8 +123,9 @@ done:
 msg:
         .asciz "Hello world!"
 
-# add zeroes to make it 510 bytes long
+# pad with zeroes to make it 510 bytes long
 .fill 510-(.-main), 1, 0
 
-# Add the magic `0x55aa`, but since x86 is little-endian, swap the bytes
-.word 0xaa55 # magic bytes that tell BIOS that this is bootable
+# Add the magic `0x55aa` that tells the BIOS we're a boot sector, but since
+# x86 is little-endian, swap the bytes
+.word 0xaa55
