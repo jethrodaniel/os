@@ -104,26 +104,26 @@
 
 _start:
         # load the address of msg into register si
-        mov $msg, %si
-        call print_string
+        /* mov $msg, %si */
+        /* call print_string */
 
-        /* mov $0x0, %si */
-        /* call print_hex */
+        # int 10/ah = 0eh -> scrolling teletype BIOS routine
+        mov $0x0e, %ah # put 0x0e into ah
 
-        # Loop here forever
+        mov $msg, %bx   # put the char into bx
+        mov (%bx), %al  # put bx's address into al
+        int $0x10       # trigger BIOS interrupt 0x10
+
+        # loop here
 loop:
-        jmp _start
+        jmp loop
 
 # include our subroutines
 .include "print_string.s"
 
-# store a string (plus a '\0')
 msg:
         .asciz "Hello world!"
 
-# pad the assembler's outputed binary with zeroes to make it 510 bytes long
-.fill 510-(.-_start), 1, 0
-
-# Add the magic `0x55aa` that tells the BIOS we're a boot sector, but since
-# x86 is little-endian, swap the bytes
-.word 0xaa55
+# padding and magic BIOS number
+.fill 510-(.-_start), 1, 0 # pad to the 510th byte with zeros
+.word 0xaa55               # tack the magic 2-byte constant at the end
