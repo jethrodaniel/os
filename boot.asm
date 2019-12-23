@@ -29,6 +29,18 @@ call print_string
 mov dx, 0x2000
 call print_hex
 
+mov bx, newline
+call print_string
+
+mov dx, 0x0000
+call print_hex
+
+mov bx, newline
+call print_string
+
+mov dx, 0x1000
+call print_hex
+
 
 jmp $ ; loop here
 
