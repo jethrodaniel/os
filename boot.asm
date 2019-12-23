@@ -38,9 +38,16 @@ call print_string
 mov dx, [0x9000 + 512]
 call print_hex
 
+mov bx, newline
+call print_string
+
+mov edx, msg
+call print_string_vga
+
 jmp $ ; loop here
 
 %include "print_string.asm"
+%include "print_string_vga.asm"
 %include "print_hex.asm"
 %include "disk_load.asm"
 
@@ -55,4 +62,4 @@ times 510-($-$$) db 0 ; pad to the 510th byte with zeros
 dw 0xaa55             ; tack the magic 2-byte constant at the end
 
 times  256 dw 0xdada
-times  256 dw 0xface
+times  256 dw 0xfafa
