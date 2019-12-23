@@ -1,4 +1,3 @@
-# tell the assembler that we're using 16 bit real mode
 .code16
 
 .global print_string
@@ -13,16 +12,27 @@
 #
 # - sets al to each character, so al will be '0' on return
 #
+# Usage
+#
+# ```
+# mov bx, msg
+# call print_string
+#
+# msg: db "yo", 0
+# ```
+#
 print_string:
         # push all registers onto the stack
         pusha
 
-        # loads 0xe (function number for int 0x10) into ah
-        mov $0xe, %ah
+        # int 10/ah = 0eh -> scrolling teletype BIOS routine
+        mov $0x0e, %ah # put 0x0e into ah
 
 print_char:
         # loads the byte from the address in si into al and increments si
-        lodsb
+        /* lodsb */
+        mov (%bx), %al
+        inc %bx
 
         # compares content in AL with zero
         cmp $0, %al
@@ -39,7 +49,7 @@ done:
         # stop execution
 
         # pop all registers off the stack
-        pusha
+        popa
 
         # return from the subroutine
         ret

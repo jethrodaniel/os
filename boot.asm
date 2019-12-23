@@ -2,16 +2,22 @@
 
 [org 0x7c00]
 
-mov ah, 0x0e ; int 10/ah = 0eh -> scrolling teletype BIOS routine
-
 mov bx, msg
-mov al, [bx]
-int 0x10
+call print_string
+
+mov bx, newline
+call print_string
+
+mov bx, second
+call print_string
 
 jmp $ ; loop here
 
-msg:
-  db "hello, world!"
+msg:      db "Hello, World!", 0
+newline:  db 10, 13, 0
+second    db "Is anybody out there? ", 0
+
+%include "print_string.asm"
 
 ; padding and magic BIOS number
 times 510-($-$$) db 0 ; pad to the 510th byte with zeros

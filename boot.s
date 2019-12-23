@@ -103,26 +103,25 @@
 .text
 
 _start:
-        # load the address of msg into register si
-        /* mov $msg, %si */
-        /* call print_string */
+        # load the address of msg into register dx
+        mov $msg, %bx
+        call print_string
 
-        # int 10/ah = 0eh -> scrolling teletype BIOS routine
-        mov $0x0e, %ah # put 0x0e into ah
+        mov $newline, %bx
+        call print_string
 
-        mov $msg, %bx   # put the char into bx
-        mov (%bx), %al  # put bx's address into al
-        int $0x10       # trigger BIOS interrupt 0x10
+        mov $second, %bx
+        call print_string
 
-        # loop here
 loop:
         jmp loop
 
 # include our subroutines
 .include "print_string.s"
 
-msg:
-        .asciz "Hello world!"
+msg:     .asciz "Hello world!"
+newline: .byte  10, 13, 0
+second:  .asciz "Is anybody out there? "
 
 # padding and magic BIOS number
 .fill 510-(.-_start), 1, 0 # pad to the 510th byte with zeros
