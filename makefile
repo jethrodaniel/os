@@ -1,26 +1,28 @@
 
+# default: clean hex build
+	# qemu-system-x86_64 boot.bin
 
-gas: clean hex build
-	qemu-system-x86_64 boot.bin
-
-nasm: clean hex-nasm build-nasm
-	qemu-system-x86_64 boot-nasm.bin
-
-# floppy: build
-# 	qemu-system-x86_64 -fda boot.bin
+floppy: build
+	qemu-system-x86_64 -fda boot.bin
 
 build:
-	as -o boot.o boot.s
-	ld -o boot.bin --oformat binary -e _start -Ttext 0x7c00 -o boot.bin boot.o
+	nasm -f bin -o boot.bin boot.asm
 	wc -c boot.bin
-build-nasm:
-	nasm -f bin -o boot-nasm.bin boot.asm
-	wc -c boot-nasm.bin
 
 hex: build
 	hexdump -v boot.bin
-hex-nasm: build-nasm
-	hexdump -v boot-nasm.bin
 
 clean:
-	rm -f *.o *.bin
+	rm -rf *.o *.bin *.img *.iso iso/
+
+# https://stackoverflow.com/a/34275054/7132678
+iso: build
+	# make a sero filled disk image the size of a floppy (1.44MB)
+	dd if=/dev/zero of=floppy.img bs=1024 count=1440
+	# place boot.bin into that disk image without truncating the rest
+	dd if=boot.bin of=floppy.img seek=0 count=1 conv=notrunc
+	# make the iso
+	mkdir iso
+	cp floppy.img iso/
+	genisoimage -quiet -V 'MYOS' -input-charset iso8859-1 -o os.iso -b floppy.img -hide floppy.img iso/
+	qemu-system-x86_64 -cdrom ./os.iso
