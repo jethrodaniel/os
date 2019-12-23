@@ -11,10 +11,16 @@ call print_string
 mov bx, second
 call print_string
 
+;mov bx, newline
+;call print_string
+;
+;mov dx, 0x0000
+;call print_hex
+
 mov bx, newline
 call print_string
 
-mov dx, 0x1fb6
+mov dx, 0x10b6
 call print_hex
 
 mov bx, newline
@@ -22,6 +28,7 @@ call print_string
 
 mov dx, 0x2000
 call print_hex
+
 
 jmp $ ; loop here
 
