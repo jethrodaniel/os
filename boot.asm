@@ -2,64 +2,41 @@
 
 [org 0x7c00]
 
-mov bx, msg
-call print_string
-
-mov bx, newline
-call print_string
-
-mov bx, second
-call print_string
-
-mov bx, newline
-call print_string
-
-; BIOS stores our boot drive in dl
-mov [BOOT_DRIVE], dl
-
 ; set stack out of the way
-mov bp, 0x8000
+mov bp, 0x9000
 mov sp, bp
 
-; load 5 sectors from to 0x0000(es):0 x9000(bx)
-mov bx, 0x9000
-
-; from the boot disk
-mov dh, 5
-mov dl, [BOOT_DRIVE]
-call disk_load
-
-mov dx, [0x9000]
-call print_hex
+mov bx, msg_real
+call print_string
 
 mov bx, newline
 call print_string
 
-mov dx, [0x9000 + 512]
-call print_hex
+; note: we dont' return
+call switch_to_pm
 
-mov bx, newline
-call print_string
-
-mov edx, msg
-call print_string_vga
-
-jmp $ ; loop here
+jmp $
 
 %include "print_string.asm"
-%include "print_string_vga.asm"
-%include "print_hex.asm"
-%include "disk_load.asm"
+%include "gdt.asm"
+%include "print_string_pm.asm"
+;%include "print_hex.asm"
+;%include "disk_load.asm"
+%include "switch_to_pm.asm"
 
-msg:      db "Hello, World!", 0
+[bits 32]
+
+BEGIN_PM:
+        mov ebx, msg_pm
+        call print_string_pm
+
+        ; hang
+        jmp $
+
+msg_real: db "Started in 16-bit real mode... Is anybody out there?", 0
+msg_pm:   db "successfully landed in 32-bit protected mode", 0
 newline:  db 10, 13, 0
-second    db "Is anybody out there? ", 0
-
-BOOT_DRIVE: db 0
 
 ; padding and magic BIOS number
 times 510-($-$$) db 0 ; pad to the 510th byte with zeros
 dw 0xaa55             ; tack the magic 2-byte constant at the end
-
-times  256 dw 0xdada
-times  256 dw 0xfafa

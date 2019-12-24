@@ -1,6 +1,6 @@
 # os
 
-a x86 operating system, for education's sake.
+an x86 operating system, for education's sake
 
 ### prereqs
 
@@ -22,10 +22,7 @@ MIT.
 
 ### references
 
-started as a walkthorugh of this - https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
-
-additionally,
-
+- https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
 - https://www.nayuki.io/page/a-fundamental-introduction-to-x86-assembly-programming
 - https://50linesofco.de/post/2018-02-28-writing-an-x86-hello-world-bootloader-with-assembly
 - http://joebergeron.io/posts/post_two.html

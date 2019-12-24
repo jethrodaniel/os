@@ -2,33 +2,34 @@
 
 [BITS 32]
 
-; subroutine to print a string in VGA mode, without the BIOS.
+; subroutine to print a string in protected mode (using VGA mode),
+; without the BIOS.
 ;
 ; ```
-; edx = address of the null-terminated string
+; ebx = address of the null-terminated string
 ; ```
 ;
 ; Usage
 ;
 ; ```
 ; mov edx, msg
-; call print_string_vga
+; call print_string_pm
 ;
 ; msg: db "yo", 0
 ; ```
 ;
 
-VIDEO_MEMORY equ 0xb8000
+VIDEO_MEMORY equ 0xb80000
 WHITE_ON_BLACK equ 0x0f
 
 ; print a null-terminated string pointed to by edx
-print_string_vga:
+print_string_pm:
         pusha
 
         ; set  edx to the start of vid mem
         mov edx, VIDEO_MEMORY
 
-print_string_vga_loop:
+print_string_pm_loop:
         ; store the char in ebx into al
         mov al, [ebx]
 
@@ -37,7 +38,7 @@ print_string_vga_loop:
 
         ; if al == 0, then end of string, so jump to done
         cmp al, 0
-        je done
+        je print_string_pm_done
 
         ; store char and attributes at curent char cell
         mov [edx], ax
@@ -49,8 +50,8 @@ print_string_vga_loop:
         add edx, 2
 
         ; loop
-        jmp print_string_vga_loop
+        jmp print_string_pm_loop
 
-print_string_vga_done:
+print_string_pm_done:
         popa
         ret
