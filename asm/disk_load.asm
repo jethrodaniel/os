@@ -75,6 +75,6 @@ disk_error:
         ; halt here
         jmp $
 
-DISK_READ_ERROR_MSG:    db "disk error: read", 0
-DISK_SECTORS_ERROR_MSG: db "disk error: sectors read != sectors expected", 0
+DISK_READ_ERROR_MSG:    db "[disk error]: read", 0
+DISK_SECTORS_ERROR_MSG: db "[disk error]: sectors read != sectors expected", 0
 _newline:               db 10, 13, 0

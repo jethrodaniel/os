@@ -58,9 +58,9 @@ BEGIN_PM:
         jmp $
 
 BOOT_DRIVE: db 0
-msg_real:   db "Started in 16-bit real mode... Is anybody out there?", 0
-msg_pm:     db "Successfully landed in 32-bit protected mode, yay!", 0
-msg_kernel: db "Loading kernel into memory...", 0
+msg_real:   db "[boot] started in 16-bit real mode...", 0
+msg_pm:     db "[boot] successfully landed in 32-bit protected mode...", 0
+msg_kernel: db "[boot] loading kernel into memory...", 0
 newline:    db 10, 13, 0
 
 ; padding and magic BIOS number
