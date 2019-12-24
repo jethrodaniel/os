@@ -1,12 +1,19 @@
-default: kernel
-
-kernel: build
-	gcc -ffreestanding -c c/kernel.c -o kernel.o
-	ld -o kernel.bin -Ttext 0x1000 kernel.o --oformat binary
-	cat boot.bin kernel.bin > os.img
+default: os.img
 	qemu-system-x86_64 -fda os.img
 
-build:
+os.img: boot.bin kernel.bin
+	cat boot.bin kernel.bin > os.img
+
+kernel.bin: kernel.o kernel_entry.o
+	ld -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o --oformat binary
+
+kernel_entry.o:
+	nasm asm/kernel_entry.asm -f elf64 -o kernel_entry.o
+
+kernel.o:
+	gcc -ffreestanding -c c/kernel.c -o kernel.o
+
+boot.bin:
 	nasm -f bin -o boot.bin asm/boot.asm
 	wc -c boot.bin
 
