@@ -10,6 +10,7 @@
 #define REG_SCREEN_DATA 0x3d5
 
 #include "../kernel/low_level.c"
+#include "../kernel/util.c"
 
 // convert (row, col) into offset distance from start of video memory
 //
@@ -53,6 +54,33 @@ void set_cursor(int offset)
         port_byte_out(REG_SCREEN_CTRL, 15);
 }
 
+// advance the text cursor, scrolling the video buffer if necessary
+int handle_scrolling(int cursor_offset)
+{
+        // If the cursor is within the screen, return it unmodified
+        if (cursor_offset < MAX_ROWS * MAX_COLS * 2)
+                return cursor_offset;
+
+        // shuffle the rows back one
+        int i;
+        for (i = 1; i < MAX_ROWS; i++)
+                memory_copy((char *)get_screen_offset(0, i) + VIDEO_ADDRESS,
+                            (char *)get_screen_offset(0, i - 1) + VIDEO_ADDRESS,
+                            MAX_COLS * 2);
+
+        // blank the last line by setting all bytes to 0
+        char* last_line = (char *)get_screen_offset(0, MAX_ROWS - 1) + VIDEO_ADDRESS;
+        for (i = 0; i < MAX_COLS * 2; i++)
+                last_line[i] = 0;
+
+        // move the offset back one row, such that it is now on the last row,
+        // rather than off the edge of the screen
+        cursor_offset -= 2 * MAX_COLS;
+
+        // return the updated cursor position
+        return cursor_offset;
+}
+
 // print a char on the screen at (col, row), or at cursor position
 void print_char(char character, int col, int row, char attribute_byte)
 {
@@ -93,10 +121,10 @@ void print_char(char character, int col, int row, char attribute_byte)
 
         // make scrolling adjustment, for when we reach the bottom of the
         // screen
-        /* offset = handle_scrolling(offset); */
+        offset = handle_scrolling(offset);
 
         // update the cursor position on the screen device
-        /* set_cursor(offset); */
+        set_cursor(offset);
 }
 
 void print_at(char* message, int col, int row)
