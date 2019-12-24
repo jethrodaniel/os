@@ -2,8 +2,9 @@
 #
 # ```
 # # insert your usb
-# mak build
+# make build
 # sudo fdisk -l # find the mount point, i.e, /sdbx, where x is 1,2,3,...
+# mount | grep sd
 #
 # # run the usb
 # sudo qemu-system-x86_64 -hdb /dev/sdb1
@@ -11,6 +12,9 @@
 
 # default: clean hex build
 	# qemu-system-x86_64 boot.bin
+
+default: build
+	qemu-system-x86_64 -drive format=raw,file=boot.bin
 
 floppy: build
 	qemu-system-x86_64 -fda boot.bin

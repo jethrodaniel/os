@@ -1,6 +1,6 @@
 ; vim: :set ft=nasm:
 
-[BITS 32]
+[bits 32]
 
 ; subroutine to print a string in protected mode (using VGA mode),
 ; without the BIOS.
@@ -19,8 +19,8 @@
 ; ```
 ;
 
-VIDEO_MEMORY equ 0xb80000
-WHITE_ON_BLACK equ 0x0f
+VIDEO_MEMORY   equ 0xb8000
+WHITE_ON_BLACK equ 0x07
 
 ; print a null-terminated string pointed to by edx
 print_string_pm:
@@ -44,7 +44,7 @@ print_string_pm_loop:
         mov [edx], ax
 
         ; increment ebx to the next char in the string
-        add ebx, 1
+        inc ebx
 
         ; move to the next char cell in video memory
         add edx, 2
