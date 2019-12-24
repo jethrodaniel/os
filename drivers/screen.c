@@ -3,7 +3,7 @@
 // convert (row, col) into offset distance from start of video memory
 //
 // 3, 4 => 488 ((3 * 80 (i.e.  the the row width) + 4) * 2 = 488)
-int get_screen_offset(int col, int row)
+unsigned int get_screen_offset(unsigned int col, unsigned int row)
 {
         return (col * 80 + row) * 2;
         /* cursor_offset  -= 2* MAX_COLS;//  Return  the  updated  cursor  position.return  cursor_offset; */

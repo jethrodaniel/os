@@ -6,6 +6,8 @@ C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
 HEADERS   = $(wildcard kernel/*.h drivers/*.h)
 OBJ       = ${C_SOURCES:.c=.o}
 
+C_FLAGS = -ffreestanding -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs
+
 default: run
 
 info:
@@ -20,8 +22,8 @@ run: os.img
 os.img: boot.bin kernel.bin
 	cat $^ > os.img
 
-%.o : kernel/%.c ${HEADERS}
-	gcc -ffreestanding -c $< -o $@
+%.o : %.c ${HEADERS}
+	gcc $(C_FLAGS) -c $< -o $@
 
 kernel_entry.o: boot/kernel_entry.asm
 	nasm $< -f elf64 -o $@
