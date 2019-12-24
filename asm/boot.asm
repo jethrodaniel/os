@@ -12,17 +12,15 @@ call print_string
 mov bx, newline
 call print_string
 
-; note: we dont' return
+; note: we don't return
 call switch_to_pm
 
 jmp $
 
-%include "print_string.asm"
-%include "gdt.asm"
-%include "print_string_pm.asm"
-;%include "print_hex.asm"
-;%include "disk_load.asm"
-%include "switch_to_pm.asm"
+%include "./asm/print_string.asm"
+%include "./asm/gdt.asm"
+%include "./asm/print_string_pm.asm"
+%include "./asm/switch_to_pm.asm"
 
 [bits 32]
 
@@ -34,7 +32,7 @@ BEGIN_PM:
         jmp $
 
 msg_real: db "Started in 16-bit real mode... Is anybody out there?", 0
-msg_pm:   db "successfully landed in 32-bit protected mode", 0
+msg_pm:   db "Successfully landed in 32-bit protected mode, yay!", 0
 newline:  db 10, 13, 0
 
 ; padding and magic BIOS number

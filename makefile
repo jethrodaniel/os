@@ -19,16 +19,6 @@ default: build
 floppy: build
 	qemu-system-x86_64 -fda boot.bin
 
-build:
-	nasm -f bin -o boot.bin boot.asm
-	wc -c boot.bin
-
-hex: build
-	hexdump -v boot.bin
-
-clean:
-	rm -rf *.o *.bin *.img *.iso iso/
-
 # https://stackoverflow.com/a/34275054/7132678
 # todo: `print_hex` prints 0s here?
 iso: build
@@ -41,3 +31,15 @@ iso: build
 	cp floppy.img iso/
 	genisoimage -quiet -input-charset iso8859-1 -o os.iso -b floppy.img -hide floppy.img iso/
 	qemu-system-x86_64 -cdrom ./os.iso
+
+build:
+	nasm -f bin -o boot.bin asm/boot.asm
+	wc -c boot.bin
+
+hex: build
+	hexdump -v boot.bin
+
+clean:
+	rm -rf *.o *.bin *.img *.iso iso/
+
+
