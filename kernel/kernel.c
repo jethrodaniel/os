@@ -2,19 +2,19 @@
 
 int main(int argc, char** argv)
 {
-        char* video_memory = (char *)0xb8000;
-        *video_memory = 'X';
-
         /* clear_screen(); */
         /* print("yo!!!!!!!!!!!1!"); */
         char c = 'X';
-        int col = 1,
+        int col = 0,
             row = 1;
         char attr = 0;
         print_char(c, col, row, attr);
 
-        /* int offset = get_screen_offset(3, 4); */
-        /* offset += '0'; */
+        char* video_memory = (char *)0xb8000;
+        *(video_memory + 3) = 'X';
+
+        fb_write_cell(0, 'A', FB_GREEN, FB_DARK_GREY);
+
 
         /* set_cursor(10); */
 }

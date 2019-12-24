@@ -1,6 +1,8 @@
 ; vim: :set ft=nasm:
 
-[BITS 16]
+; todo: cleanup with https://intermezzos.github.io/book/first-edition/setting-up-a-gdt.html
+
+[bits 16]
 
 gdt_start:
 

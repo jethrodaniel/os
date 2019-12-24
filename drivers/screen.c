@@ -1,12 +1,20 @@
 #include "screen.h"
 
+// write a character with the given foreground and background to position i
+// in the framebuffer
+void fb_write_cell(unsigned int i, char c, unsigned char fg, unsigned char bg)
+{
+        char *fb = (char *)0xb8000;
+        fb[i] = c;
+        fb[i + 1] = ((fg & 0x0F) << 4) | (bg & 0x0F);
+}
+
 // convert (row, col) into offset distance from start of video memory
 //
-// 3, 4 => 488 ((3 * 80 (i.e.  the the row width) + 4) * 2 = 488)
+// 3, 4 => 488 ((3 * 80 (i.e.  the the row width) + 4) *  = 488)
 unsigned int get_screen_offset(unsigned int col, unsigned int row)
 {
         return (col * 80 + row) * 2;
-        /* cursor_offset  -= 2* MAX_COLS;//  Return  the  updated  cursor  position.return  cursor_offset; */
 }
 
 int get_cursor()
@@ -108,10 +116,10 @@ void print_char(char character, int col, int row, char attribute_byte)
 
         // make scrolling adjustment, for when we reach the bottom of the
         // screen
-        offset = handle_scrolling(offset);
+        /* offset = handle_scrolling(offset); */
 
         // update the cursor position on the screen device
-        set_cursor(offset);
+        /* set_cursor(offset); */
 }
 
 void print_at(char* message, int col, int row)
