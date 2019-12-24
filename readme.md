@@ -5,7 +5,7 @@ an x86 operating system, for education's sake
 ### prereqs
 
 ```
-sudo apt-get install build-essential qemu make
+sudo apt-get install build-essential qemu make nasm gcc
 ```
 
 ### install
