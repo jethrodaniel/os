@@ -38,22 +38,43 @@ disk_load:
         int 0x13
 
         ; jump if read error
-        jc disk_error
+        jc disk_read_error
 
         ; restore dx from the stack
         pop dx
 
         ; if sectors read (al) != sectors expected (dh), raise an error
         cmp dh, al
-        jne disk_error
+        jne disk_sectors_error
 
         ; return from subroutine
         ret
 
-disk_error:
-        mov bx, DISK_ERROR_MSG
+disk_read_error:
+        mov bx, _newline
         call print_string
+
+        mov bx, DISK_READ_ERROR_MSG
+        call print_string
+
+        jmp disk_error
+
+disk_sectors_error:
+        mov bx, _newline
+        call print_string
+
+        mov bx, DISK_SECTORS_ERROR_MSG
+        call print_string
+
+        jmp disk_error
+
+disk_error:
+        mov bx, _newline
+        call print_string
+
+        ; halt here
         jmp $
 
-DISK_ERROR_MSG:
-        db "Disk read error!", 0
+DISK_READ_ERROR_MSG:    db "disk error: read", 0
+DISK_SECTORS_ERROR_MSG: db "disk error: sectors read != sectors expected", 0
+_newline:               db 10, 13, 0
