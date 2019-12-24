@@ -1,3 +1,5 @@
+#include "low_level.h"
+
 // read a byte from the specified port
 //
 // "=a" (result) - put al in result variable when finished

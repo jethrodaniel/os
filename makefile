@@ -2,11 +2,19 @@
 # $< - first dependency, $@ is target file
 # $< - first dependency, $@ is target file
 
-C_SOURCES = $(wildcard kernel /*.c drivers /*.c)
-HEADERS   = $(wildcard kernel /*.h drivers /*.h)
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
+HEADERS   = $(wildcard kernel/*.h drivers/*.h)
 OBJ       = ${C_SOURCES:.c=.o}
 
-default: os.img
+default: run
+
+info:
+	@echo "== build info =="
+	@echo "sources: $(C_SOURCES)"
+	@echo "headers: $(HEADERS)"
+	@echo "obj: $(OBJ)"
+
+run: os.img
 	qemu-system-x86_64 -fda os.img
 
 os.img: boot.bin kernel.bin
@@ -18,15 +26,15 @@ os.img: boot.bin kernel.bin
 kernel_entry.o: boot/kernel_entry.asm
 	nasm $< -f elf64 -o $@
 
-kernel.bin: kernel.o kernel_entry.o ${OBJ}
-	ld -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o --oformat binary
+kernel.bin: kernel_entry.o ${OBJ}
+	ld -o $@ -Ttext 0x1000 $^ --oformat binary
 
 boot.bin: boot/boot.asm
 	nasm -f bin -o boot.bin boot/boot.asm
 	wc -c boot.bin
 
 clean:
-	rm -rf *.o *.bin *.img *.iso iso/
+	rm -rf *.o *.bin *.img *.iso iso/ drivers/*.o kernel/*.o
 
 # todo
 #
