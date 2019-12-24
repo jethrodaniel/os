@@ -2,5 +2,9 @@
 
 [bits 32]
 
-; ensure we jump straight to the kernel's main
+; ensure the linker resolves the address of main()
+[extern main]
 
+; ensure we jump straight to the kernel's main
+call main
+jmp $

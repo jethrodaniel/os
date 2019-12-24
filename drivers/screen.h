@@ -93,10 +93,10 @@ void print_char(char character, int col, int row, char attribute_byte)
 
         // make scrolling adjustment, for when we reach the bottom of the
         // screen
-        offset = handle_scrolling(offset);
+        /* offset = handle_scrolling(offset); */
 
         // update the cursor position on the screen device
-        set_cursor(offset);
+        /* set_cursor(offset); */
 }
 
 void print_at(char* message, int col, int row)
@@ -114,4 +114,18 @@ void print_at(char* message, int col, int row)
 void print(char* message)
 {
         print_at(message, -1, -1);
+}
+
+void clear_screen()
+{
+        int row = 0,
+            col = 0;
+
+    // loop through video memory and write blank characters.
+    for (row = 0; row < MAX_ROWS; row++)
+            for (col = 0; col < MAX_COLS; col++)
+                    print_char(' ', col, row, WHITE_ON_BLACK);
+
+    // move the cursor back to the top left
+    set_cursor(get_screen_offset (0, 0));
 }
