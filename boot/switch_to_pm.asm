@@ -1,8 +1,8 @@
 ; vim: :set ft=nasm:
 
-[BITS 16]
+[bits 16]
 
-; Switch to protected mode
+; switch to protected mode
 switch_to_pm:
         ; switch off all interrupts
         cli
@@ -10,14 +10,15 @@ switch_to_pm:
         ; load our global descriptor table
         lgdt [gdt_descriptor]
 
-        ; to make  the  switch  to  protected  mode , we set the  first  bit
-        ; of cr0 , a control  register
+        ; to make the switch to protected mode, we set the first bit of cr0, a
+        ; control register
         mov eax, cr0
         or eax , 0x1
         mov cr0 , eax
 
         ; make a far jump (i.e, to a new segment) to our 32-bit code
-        ; This forces the CPU to flush its cache of pre-fetched and
+        ;
+        ; this forces the CPU to flush its cache of pre-fetched and
         ; real-mode decoded instructions, which can cause problems
         jmp CODE_SEG:init_pm
 
@@ -38,4 +39,4 @@ init_pm:
         mov esp, ebp
 
         ; call some well-known label
-        call BEGIN_PM
+        call protected_mode

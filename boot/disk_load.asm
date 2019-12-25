@@ -1,13 +1,16 @@
 ; vim: :set ft=nasm:
 
-[BITS 16]
+[bits 16]
 
-; subroutine to read from a disk into memory.
+; subroutine to read from a disk into memory
 ;
+; reads a specified number of sectors, grabs cylinder 0, head 0, and
+; start reading the second sector (after the bootloader)
+
 ; ```
-; dx = the hexadecimal value to print
+; dh = how many sectors
+; bx =
 ; ```
-;
 ; Usage
 ;
 ; ```

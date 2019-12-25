@@ -1,6 +1,6 @@
 ; vim: :set ft=nasm:
 
-[BITS 16]
+[bits 16]
 
 ; subroutine to print a string.
 ;
@@ -8,9 +8,6 @@
 ; si = address of the null-terminated string
 ; ```
 ;
-; Return:
-;
-; - sets al to each character, so al will be '0' on return
 ;
 ; Usage
 ;
@@ -33,7 +30,7 @@ print_char:
         mov al, [bx]
         inc bx
 
-        ; compares content in AL with zero
+        ; compares content in al with zero
         cmp al, 0
 
         ; if al == '0', go to "done"

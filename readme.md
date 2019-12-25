@@ -30,5 +30,6 @@ MIT.
 - http://joebergeron.io/posts/post_two.html
 - https://geosn0w.github.io/An-Introduction-To-Intel-x86-Assembly/
 - http://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html
+- https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64
 
 thanks y'all (especially those top 2).
