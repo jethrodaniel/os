@@ -1,4 +1,8 @@
-## x86
+## boot
+
+The code here is loaded from BIOS, and loads the kernel.
+
+### x86
 
 general purpose registers
 
@@ -8,7 +12,6 @@ general purpose registers
 |      r        |      e       |  ah   |  al    |
 |               |              |  bh   |  bl    |
 |               |              |  ch   |  cl    |
-|               |              |  dh   |  dl    |
 |               |              |  dh   |  dl    |
 |               |              |  --- bp -----  |
 |               |              |      si        |
@@ -26,6 +29,14 @@ general purpose registers
   rsi   |  esi   |
   rdi   |  edi   |
   rsp   |  esp   |
+  r8
+  r9
+  r10
+  r11
+  r12
+  r13
+  r14
+  r15
 ```
 
 physical memory layout
@@ -39,9 +50,6 @@ todo: 64 bit
 | mem-mapped devices |
 |                    |
 +--------------------+
-|                    |
-| unused             |
-+--------------------+ <- depends on ram
 |                    |
 | extended memory    |
 |                    |
@@ -59,7 +67,7 @@ todo: 64 bit
 
 ## sequence
 
-- pc powers on, which kicks off the BIOS
+- pc powers on, which kicks off the BIOS (in 16-bit real mode)
 - BIOS makes sure memory and disks are good, etc
 - BIOS proceeds to find a bootable device to boot
 
@@ -68,7 +76,10 @@ Devices are "bootable" if their 511th and 512th bytes match a magic number.
 If so, that first sector (512 bytes) is moved to address `0x7c00`, where it is
 executed.
 
+The bootloader is run in 16-bit real mode, a legacy mode with 64KiB of memory,
+and no virtual addresses (todo, explain).
+
 That bootloader is responsible for
 
--
--
+- todo
+- todo
