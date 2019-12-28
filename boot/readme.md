@@ -39,7 +39,14 @@ general purpose registers
   r15
 ```
 
-physical memory layout
+#### stack
+
+bp - base address (i.e. bottom) of the stack
+sp - top of the stack
+
+the stack grows _downward_ from bp (so sp gets decremented).
+
+#### physical memory layout
 
 todo: 64 bit
 

@@ -51,31 +51,31 @@ void set_cursor(int offset)
 }
 
 // advance the text cursor, scrolling the video buffer if necessary
-int handle_scrolling(int cursor_offset)
-{
-        // If the cursor is within the screen, return it unmodified
-        if (cursor_offset < MAX_ROWS * MAX_COLS * 2)
-                return cursor_offset;
+/* int handle_scrolling(int cursor_offset) */
+/* { */
+/*         // If the cursor is within the screen, return it unmodified */
+/*         if (cursor_offset < MAX_ROWS * MAX_COLS * 2) */
+/*                 return cursor_offset; */
 
-        // shuffle the rows back one
-        int i;
-        for (i = 1; i < MAX_ROWS; i++)
-                memory_copy((char *)get_screen_offset(0, i) + VIDEO_ADDRESS,
-                            (char *)get_screen_offset(0, i - 1) + VIDEO_ADDRESS,
-                            MAX_COLS * 2);
+/*         // shuffle the rows back one */
+/*         int i; */
+/*         for (i = 1; i < MAX_ROWS; i++) */
+/*                 memory_copy((char *)get_screen_offset(0, i) + VIDEO_ADDRESS, */
+/*                             (char *)get_screen_offset(0, i - 1) + VIDEO_ADDRESS, */
+/*                             MAX_COLS * 2); */
 
-        // blank the last line by setting all bytes to 0
-        char* last_line = (char *)get_screen_offset(0, MAX_ROWS - 1) + VIDEO_ADDRESS;
-        for (i = 0; i < MAX_COLS * 2; i++)
-                last_line[i] = 0;
+/*         // blank the last line by setting all bytes to 0 */
+/*         char* last_line = (char *)get_screen_offset(0, MAX_ROWS - 1) + VIDEO_ADDRESS; */
+/*         for (i = 0; i < MAX_COLS * 2; i++) */
+/*                 last_line[i] = 0; */
 
-        // move the offset back one row, such that it is now on the last row,
-        // rather than off the edge of the screen
-        cursor_offset -= 2 * MAX_COLS;
+/*         // move the offset back one row, such that it is now on the last row, */
+/*         // rather than off the edge of the screen */
+/*         cursor_offset -= 2 * MAX_COLS; */
 
-        // return the updated cursor position
-        return cursor_offset;
-}
+/*         // return the updated cursor position */
+/*         return cursor_offset; */
+/* } */
 
 // print a char on the screen at (col, row), or at cursor position
 void print_char(char character, int col, int row, char attribute_byte)

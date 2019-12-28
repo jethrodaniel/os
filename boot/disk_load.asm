@@ -4,8 +4,8 @@
 
 ; subroutine to read from a disk into memory
 ;
-; reads a specified number of sectors, grabs cylinder 0, head 0, and
-; start reading the second sector (after the bootloader)
+; reads a specified number of sectors from drive dl, grabs cylinder 0,
+; head 0, and start reading the second sector (after the bootloader)
 
 ; ```
 ; dh = how many sectors

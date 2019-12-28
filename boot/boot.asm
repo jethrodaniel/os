@@ -1,22 +1,24 @@
 ; vim: :set ft=nasm:
 
-; this is where the BIOS starts us at, after recognizing the magic numbers at
-; the end of the boot sector
-;
-; this just tells nasm to start our 0's here relative to this physical offset,
-; so we can say 0x0 instead of 0x7c00
+; After recognizing the magic numbers at the end of the boot sector, BIOS
+; moves our bootsector code to 0x7c00 and executes it.
+
+; global offset, so we don't have to add 0x7c00 to all the addresses
 [org 0x7c00]
 
 init:
         ; our kernel start here - a little after 1MB is the tradition
         KERNEL_OFFSET equ 0x1200
 
-        ; BIOS stores our boot drive in dl, let's remember this
-        mov [BOOT_DRIVE], dl
-
-        ; set stack a little out of the way of where the
+        ; set stack base to an address far away from 0x7c00 so that we don't
+        ; get overwritten by our bootloader.
+        ;
+        ; if the stack is empty then sp points to bp.
         mov bp, 0x9000
         mov sp, bp
+
+        ; BIOS stores our boot drive in dl, let's remember this
+        mov [BOOT_DRIVE], dl
 
         mov bx, msg_real
         call print_string
@@ -26,9 +28,8 @@ init:
 
         call load_kernel
 
-        ; we don't return here, so loop in case we do
         call switch_to_pm
-        jmp $
+        jmp $ ; hang (we shouldn't get here, as we don't return...)
 
 %include "./boot/print_string.asm"
 %include "./boot/gdt.asm"

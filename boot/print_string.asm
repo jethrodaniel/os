@@ -2,12 +2,11 @@
 
 [bits 16]
 
-; subroutine to print a string.
+; subroutine to print a string
 ;
 ; ```
-; si = address of the null-terminated string
+; bx = address of the null-terminated string
 ; ```
-;
 ;
 ; Usage
 ;
@@ -22,28 +21,25 @@ print_string:
         ; push all registers onto the stack
         pusha
 
-        ; int 10/ah = 0eh -> scrolling teletype BIOS routine
-        mov ah, 0x0e ; put 0x0e into ah
+        ; tty mode
+        mov ah, 0x0e
 
 print_char:
-        ; loads the byte from the address in si into al and increments si
+        ; load the next byte from bx into al for printing
         mov al, [bx]
         inc bx
 
-        ; compares content in al with zero
-        cmp al, 0
-
         ; if al == '0', go to "done"
+        cmp al, 0
         je done
 
-        ; prints the character in al to screen
+        ; print the character in al to screen
         int 0x10
 
         ; repeat with the next byte
         jmp print_char
-done:
-        ; stop execution
 
+done:
         ; pop all registers off the stack
         popa
 

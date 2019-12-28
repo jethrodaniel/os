@@ -1,6 +1,6 @@
 ; vim: :set ft=nasm:
 
-[BITS 16]
+[bits 16]
 
 ; subroutine to print a hex number.
 ;
