@@ -7,8 +7,8 @@
 [org 0x7c00]
 
 init:
-        ; our kernel start here - a little after 1MB is the tradition
-        KERNEL_OFFSET equ 0x1200
+        ; the same one we used when linking the kernel
+        KERNEL_OFFSET equ 0x1000
 
         ; set stack base to an address far away from 0x7c00 so that we don't
         ; get overwritten by our bootloader.

@@ -2,3 +2,5 @@
 *.bin
 *.img
 *.elf
+tmp/
+i386elfgcc/
