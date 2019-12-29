@@ -17,7 +17,7 @@ make cross-compiler # oh lawd he compiling (one-time)
 make
 ```
 
-That'll setup a cross-compiler (and gdb) for i386 (gcc, binutils, etc) - this takes a **while** (at least 30-45 min).
+that'll setup a cross-compiler (and gdb) for i386 (gcc, binutils, etc) - this takes a **while**
 
 ### license
 
@@ -26,6 +26,7 @@ MIT.
 ### references
 
 - https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
+- https://github.com/cfenollosa/os-tutorial
 - https://pdos.csail.mit.edu/6.828/2011/schedule.html
 - https://wiki.osdev.org/Bare_Bones
 - https://www.nayuki.io/page/a-fundamental-introduction-to-x86-assembly-programming
@@ -36,4 +37,4 @@ MIT.
 - https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64
 - https://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/
 
-thanks y'all (especially those top 3).
+thanks y'all (especially those top 4).

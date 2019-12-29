@@ -14,9 +14,9 @@ int main(int argc, char** argv)
         /* *(video_memory + 2) = 'X'; */
         /* *(video_memory + 3) = FB_GREEN; */
 
-        fb_write_cell(2, 'h', FB_BLACK, FB_WHITE);
-        fb_write_cell(4, 'i', FB_BLACK, FB_WHITE);
-        fb_write_cell(6, '!', FB_BLACK, FB_WHITE);
+        fb_write_cell(0, 'h', FB_BLACK, FB_WHITE);
+        fb_write_cell(2, 'i', FB_BLACK, FB_WHITE);
+        fb_write_cell(4, '!', FB_BLACK, FB_WHITE);
 
 
         /* set_cursor(10); */

@@ -33,12 +33,6 @@ C_FLAGS += -g
 
 default: run
 
-info:
-	@echo "== build info =="
-	@echo "sources: $(C_SOURCES)"
-	@echo "headers: $(HEADERS)"
-	@echo "obj: $(OBJ)"
-
 run: os.bin
 	$(QEMU) -drive file=os.bin,index=0,if=floppy,format=raw
 
