@@ -33,17 +33,17 @@ C_FLAGS += -g
 
 default: run
 
-run: os.bin
-	$(QEMU) -drive file=os.bin,index=0,if=floppy,format=raw
+run: iso
 
 # open the connection to qemu and load our kernel-object file with symbols
 debug: os.bin kernel.elf
 	$(QEMU) -gdb tcp::9001 -fda os.bin &
-	sudo $(GDB) -ex "target remote localhost:9001" \
+	$(GDB) -ex "target remote localhost:9001" \
 	       -ex "symbol-file kernel.elf"
 
 clean: clean_o
-	rm -rf *.bin
+	rm -f *.bin
+	rm -f *.iso
 
 clean_o:
 	rm -rf *.o drivers/*.o kernel/*.o
@@ -51,23 +51,20 @@ clean_o:
 purge: clean
 	rm -rf tmp/
 
-# files
+multiboot_header.o: boot/multiboot_header.asm
+	nasm -f elf32 -o $@ $<
 
-kernel.elf: kernel_entry.o ${OBJ}
-	$(LD) -o $@ -Ttext 0x1000 $^
+boot.o: boot/multiboot.asm
+	nasm -f elf32 -o $@ $<
 
-os.bin: boot.bin kernel.bin
-	cat $^ > $@
+kernel.bin: multiboot_header.o boot.o
+	$(LD) -T boot/linker.ld -o $@ $^
 
-kernel_entry.o: boot/kernel_entry.asm
-	nasm $< -f elf -o $@
-
-kernel.bin: kernel_entry.o ${OBJ}
-	$(LD) -o $@ -Ttext 0x1000 $^ --oformat binary
-
-boot.bin: boot/boot.asm
-	nasm -f bin -o $@ $<
-	wc -c $@ # 512 todo,verify this
+iso: kernel.bin
+	mkdir -p build/isofiles/boot/grub
+	cp $< build/isofiles/boot/
+	grub-mkrescue -o os.iso build/isofiles
+	qemu-system-x86_64 -m 512 -cdrom os.iso
 
 %.o : %.c ${HEADERS}
 	$(CC) $(C_FLAGS) -c $< -o $@

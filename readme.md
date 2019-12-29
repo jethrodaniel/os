@@ -5,7 +5,7 @@ a 32-bit x86 operating system, for education's sake
 ### prereqs
 
 ```
-sudo apt-get install build-essential qemu make nasm gcc curl texinfo
+sudo apt-get install build-essential qemu make nasm gcc curl texinfo xorriso grub2 grub2-common
 ```
 
 ### install

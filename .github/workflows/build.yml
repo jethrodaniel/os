@@ -1,0 +1,29 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: crystallang/crystal
+
+    steps:
+    - uses: actions/checkout@v1
+
+    # - name: install dependencies
+    #   run: apt-get install -y build-essential make nasm gcc curl grub2 grub2-common
+
+    - name: setup cross-compiler
+      run: make cross-compiler
+
+    # - name: run
+    #   run: make
+
+    # - name: spec
+    #   run: crystal spec
+
+    # - name: lint
+    #   run: crystal tool format --check
