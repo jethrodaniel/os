@@ -2,6 +2,10 @@
 # $< - first dependency, $@ is target file
 # $< - first dependency, $@ is target file
 # $@ - target
+# `VAR = value`  - lazy seta
+# `VAR := value` - immediate set
+# `VAR ?= value` - set if absent
+# `VAR += value` - append
 
 CC   := ./i386elfgcc/bin/i386-elf-gcc
 GDB  := ./i386elfgcc/bin/i386-elf-gdb
@@ -9,8 +13,8 @@ LD   := ./i386elfgcc/bin/i386-elf-ld
 QEMU := qemu-system-i386
 
 BINUTILS_VERSION = 2.33.1
-GCC_VERSION = 9.2.0
-GDB_VERSION = 8.2
+GCC_VERSION      = 9.2.0
+GDB_VERSION      = 8.2
 
 PWD    := $(shell pwd)
 PREFIX := $(PWD)/i386elfgcc
@@ -33,19 +37,20 @@ C_FLAGS += -g
 
 default: run
 
-run: iso
+run: os.iso
+	$(QEMU) -m 512 -cdrom $<
 
 # open the connection to qemu and load our kernel-object file with symbols
-debug: os.bin kernel.elf
-	$(QEMU) -gdb tcp::9001 -fda os.bin &
+debug: os.iso kernel.bin
+	$(QEMU) -S -gdb tcp::9001 -cdrom os.iso &
 	$(GDB) -ex "target remote localhost:9001" \
-	       -ex "symbol-file kernel.elf"
+	       -ex "symbol-file kernel.bin"
 
-clean: clean_o
+clean:
 	rm -f *.bin
+	rm -rf build/isofiles/boot/*.bin
 	rm -f *.iso
-
-clean_o:
+	rm -rf *.o drivers/*.o kernel/*.o
 	rm -rf *.o drivers/*.o kernel/*.o
 
 purge: clean
@@ -60,11 +65,12 @@ boot.o: boot/multiboot.asm
 kernel.bin: multiboot_header.o boot.o
 	$(LD) -T boot/linker.ld -o $@ $^
 
-iso: kernel.bin
-	mkdir -p build/isofiles/boot/grub
+os.iso: kernel.bin build/isofiles/boot/grub
 	cp $< build/isofiles/boot/
-	grub-mkrescue -o os.iso build/isofiles
-	qemu-system-x86_64 -m 512 -cdrom os.iso
+	grub-mkrescue -o $@ build/isofiles
+
+build/isofiles/boot/grub:
+	mkdir -p build/isofiles/boot/grub
 
 %.o : %.c ${HEADERS}
 	$(CC) $(C_FLAGS) -c $< -o $@
