@@ -36,6 +36,9 @@ default: run
 run: os.bin
 	$(QEMU) -drive file=os.bin,index=0,if=floppy,format=raw
 
+tree:
+	tree -I 'i386elfgcc*'
+
 # open the connection to qemu and load our kernel-object file with symbols
 debug: os.bin kernel.elf
 	$(QEMU) -gdb tcp::9001 -fda os.bin &
