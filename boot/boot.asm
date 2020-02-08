@@ -6,6 +6,8 @@
 ; global offset, so we don't have to add 0x7c00 to all the addresses
 [org 0x7c00]
 
+[bits 16]
+
 init:
         ; the same one we used when linking the kernel
         KERNEL_OFFSET equ 0x1000
@@ -29,15 +31,7 @@ init:
         call load_kernel
 
         call switch_to_pm
-        jmp $ ; hang (we shouldn't get here, as we don't return...)
-
-%include "./boot/print_string.asm"
-%include "./boot/gdt.asm"
-%include "./boot/print_string_pm.asm"
-%include "./boot/disk_load.asm"
-%include "./boot/switch_to_pm.asm"
-
-[bits 16]
+        jmp $ ; hang
 
 ; Load the first 15 sectors (512 * 15 = 7680) (excluding the boot sector) into
 ; address KERNEL_OFFSET.
@@ -55,6 +49,12 @@ load_kernel:
 
         ret
 
+%include "./boot/print_string.asm"
+%include "./boot/gdt.asm"
+%include "./boot/print_string_pm.asm"
+%include "./boot/disk_load.asm"
+%include "./boot/switch_to_pm.asm"
+
 [bits 32]
 
 protected_mode:
@@ -65,7 +65,7 @@ protected_mode:
         ;
         ; brace yourselves.
         call KERNEL_OFFSET
-        jmp $ ; hang (we shouldn't get here, as we don't return...)
+        jmp $ ; hang
 
 BOOT_DRIVE: db 0
 msg_real:   db "[boot] started in 16-bit real mode...", 0
