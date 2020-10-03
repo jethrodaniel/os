@@ -1,23 +1,20 @@
 # os
 
-a 32-bit x86 operating system, for education's sake
+32-bit x86 operating system, for education's sake
 
 ### prereqs
 
 ```
-sudo apt-get install build-essential qemu make nasm gcc curl texinfo
+$ cat install.sh
+# centOS 7
+yum install -y nasm nasm-doc qemu seabios gcc
 ```
 
 ### install
 
 ```
-git clone https://github.com/jethrodaniel/os
-cd os
-make cross-compiler # oh lawd he compiling (one-time)
-make
+git clone https://github.com/jethrodaniel/os && cd os && make
 ```
-
-that'll setup a cross-compiler (and gdb) for i386 (gcc, binutils, etc) - this takes a **while**
 
 ### license
 
@@ -37,4 +34,4 @@ MIT.
 - https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64
 - https://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/
 
-thanks y'all (especially those top 4).
+thanks y'all.
