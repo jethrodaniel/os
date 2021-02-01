@@ -7,13 +7,14 @@ puts "[lisp] Started. `q` to exit"
 print prompt
 
 loop do
-  c = $stdin.noecho(&:getch)
+  c = $stdin.noecho(&:getch).ord
 
-  exit if c == 'q'
+  exit if c == 113 # 'q'
 
-  print c
+  print c.chr
+  # print c
 
-  if c == "\r"
+  if c == 13 # "\r"
     print prompt
     print "\n"
     break
