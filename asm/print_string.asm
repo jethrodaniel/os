@@ -2,7 +2,14 @@
 
 [bits 16]
 
-; subroutine to print a string
+puts_string:
+  call print_string
+
+  mov bx, newline
+  call print_string
+
+
+; Subroutine to print a string
 ;
 ; ```
 ; bx = address of the null-terminated string
@@ -18,30 +25,30 @@
 ; ```
 ;
 print_string:
-        ; push all registers onto the stack
-        pusha
+  ; push all registers onto the stack
+  pusha
 
-        ; tty mode
-        mov ah, 0x0e
+  ; tty mode
+  mov ah, 0x0e
 
-print_char:
-        ; load the next byte from bx into al for printing
-        mov al, [bx]
-        inc bx
+.print_char:
+  ; load the next byte from bx into al for printing
+  mov al, [bx]
+  inc bx
 
-        ; if al == '0', go to "done"
-        cmp al, 0
-        je done
+  ; if al == '0', go to "done"
+  cmp al, 0
+  je .done
 
-        ; print the character in al to screen
-        int 0x10
+  ; print the character in al to screen
+  int 0x10
 
-        ; repeat with the next byte
-        jmp print_char
+  ; repeat with the next byte
+  jmp .print_char
 
-done:
-        ; pop all registers off the stack
-        popa
+.done:
+  ; pop all registers off the stack
+  popa
 
-        ; return from the subroutine
-        ret
+  ; return from the subroutine
+  ret

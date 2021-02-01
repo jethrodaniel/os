@@ -43,31 +43,34 @@
 ;
 ; - https://appusajeev.wordpress.com/2011/01/27/writing-a-16-bit-real-mode-os-nasm/
 ; - https://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-en-4/s1-boot-init-shutdown-process.html
-
-
-; x86 BIOS begins execution in 16-bit real mode.
 ;
+; == 16-bit mode
+;
+; The x86 16 bit mode ...
+
+;------------------------;
+
 [bits 16]
 
-; Using NASM sugar to add a global offset, so we don't have to add
-; 0x7c00 to all the addresses.
+; Add a global offset, so we don't have to add 0x7c00 to all the addresses.
 ;
 [org 0x7c00]
 
 init:
   mov bx, msg_real
-  call print_string
-
-  mov bx, newline
-  call print_string
+  call puts_string
 
   jmp $ ; hang
 
 %include "asm/print_string.asm"
 
-msg_real:   db "[boot] started in 16-bit real mode...", 0
+msg_real:   db "[boot] Starting up in 16-bit real mode...", 0
 newline:    db 10, 13, 0
 
-; Padding and magic BIOS number
-times 510-($-$$) db 0 ; pad to the 510th byte with zeros
-dw 0xaa55             ; tack the magic 2-byte constant at the end
+; Pad to the 510th byte with zeros
+;
+times 510-($-$$) db 0
+
+; Tack the magic 2-byte constant at the end
+;
+dw 0xaa55
