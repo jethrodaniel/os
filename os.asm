@@ -68,7 +68,7 @@
 init:
   bios.init_tty_mode
 
-  mov bx, msg_real
+  mov bx, data.msg_real
   call puts_string
 
   bios.read_char_into_al
@@ -87,8 +87,8 @@ init:
 ; Data
 ;---------------------
 
-msg_real:   db "[boot] Started up in 16-bit real mode", 0
-newline:    db 10, 13, 0
+data.msg_real: db "[boot] Started up in 16-bit real mode", 0
+data.newline:  db 10, 13, 0
 
 ;---------------------
 ; Required ending

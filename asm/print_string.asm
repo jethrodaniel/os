@@ -8,7 +8,7 @@
 puts_string:
   subroutine_start
   call print_string
-  mov bx, newline
+  mov bx, data.newline
   call print_string
   subroutine_end
 
