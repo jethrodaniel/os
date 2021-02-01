@@ -2,6 +2,10 @@
 
 [bits 16]
 
+;---------------------
+; BIOS
+;---------------------
+
 ; Initialize tty mode to allow printing to the screen.
 ;
 %macro bios.init_tty_mode 0
@@ -21,12 +25,9 @@
   int 0x10
 %endmacro
 
-; Subroutines preserve some registers, in order to avoid messing
-; with the caller's registers (except for any intended side-effects,
-; such as for a "return" value).
-;
-; This is basically a primitive "calling-convention", to avoid
-; trashing registers.
+;---------------------
+; Subroutines
+;---------------------
 
 %macro subroutine_start 0
   ; Push all registers onto the stack
