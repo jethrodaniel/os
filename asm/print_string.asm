@@ -3,52 +3,41 @@
 [bits 16]
 
 puts_string:
+  subroutine_start
+
   call print_string
 
   mov bx, newline
   call print_string
 
+  subroutine_end
 
-; Subroutine to print a string
-;
-; ```
-; bx = address of the null-terminated string
-; ```
-;
-; Usage
+; Print the null-terminated string whose address is in `bx`.
 ;
 ; ```
 ; mov bx, msg
 ; call print_string
 ;
-; msg: db "yo", 0
+; msg: db "hi!", 0
 ; ```
-;
 print_string:
-  ; push all registers onto the stack
-  pusha
-
-  ; tty mode
-  mov ah, 0x0e
+  subroutine_start
 
 .print_char:
-  ; load the next byte from bx into al for printing
+  ; Load the next byte from `bx` into `al` for printing
   mov al, [bx]
+
+  ; Move to the next byte, i.e, the next ASCII character
   inc bx
 
-  ; if al == '0', go to "done"
+  ; If `al` is `0`, i.e, `\0` or the null byte, then we're done
   cmp al, 0
   je .done
 
-  ; print the character in al to screen
-  int 0x10
+  bios.print_char_in_al
 
-  ; repeat with the next byte
+  ; Repeat with the next byte
   jmp .print_char
 
 .done:
-  ; pop all registers off the stack
-  popa
-
-  ; return from the subroutine
-  ret
+  subroutine_end

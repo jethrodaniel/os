@@ -60,8 +60,13 @@ init:
   mov bx, msg_real
   call puts_string
 
+  bios.read_char_into_al
+  bios.print_char_in_al
+
   jmp $ ; hang
 
+; %include "asm/read_string.asm"
+%include "asm/bios.asm"
 %include "asm/print_string.asm"
 
 msg_real:   db "[boot] Starting up in 16-bit real mode...", 0
