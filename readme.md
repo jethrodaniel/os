@@ -1,13 +1,12 @@
 # os
 
-32-bit x86 operating system, for education's sake
+Experiments in Operating Systems and language bootstrapping.
 
 ### prereqs
 
 ```
-$ cat install.sh
 # centOS 7
-yum install -y nasm nasm-doc qemu seabios gcc
+yum install -y nasm nasm-doc qemu seabios
 ```
 
 ### install
@@ -34,5 +33,7 @@ MIT.
 - https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64
 - https://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/
 - http://www.jamesmolloy.co.uk/tutorial_html/index.html
+- https://github.com/nornagon/jonesforth/blob/master/jonesforth.S
+- https://www.forth.com/starting-forth/0-starting-forth/
 
 thanks y'all.
