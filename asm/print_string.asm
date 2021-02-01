@@ -2,24 +2,18 @@
 
 [bits 16]
 
+; Print (with a newline) the null-terminated string whose address is
+; in `bx`.
+;
 puts_string:
   subroutine_start
-
   call print_string
-
   mov bx, newline
   call print_string
-
   subroutine_end
 
 ; Print the null-terminated string whose address is in `bx`.
 ;
-; ```
-; mov bx, msg
-; call print_string
-;
-; msg: db "hi!", 0
-; ```
 print_string:
   subroutine_start
 

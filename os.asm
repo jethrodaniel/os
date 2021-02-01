@@ -56,6 +56,11 @@
 ;
 [org 0x7c00]
 
+; Macros are substituted by the preprocessor, we can include them
+; without altering control flow (i.e, before our main `jmp`).
+;
+%include "asm/macros.asm"
+
 init:
   bios.init_tty_mode
 
@@ -68,7 +73,6 @@ init:
   jmp $ ; hang
 
 ; %include "asm/read_string.asm"
-%include "asm/bios.asm"
 %include "asm/print_string.asm"
 
 msg_real:   db "[boot] Started up in 16-bit real mode", 0
