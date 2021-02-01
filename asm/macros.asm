@@ -6,12 +6,6 @@
 ; BIOS
 ;---------------------
 
-; Initialize tty mode to allow printing to the screen.
-;
-%macro bios.init_tty_mode 0
-  mov ah, 0x0e
-%endmacro
-
 ; BIOS call to read an ASCII character into `al`.
 ;
 %macro bios.read_char_into_al 0
@@ -47,4 +41,18 @@
 %macro subroutine_end 0
   popa ; Pop all registers off the stack
   ret  ; Return from this subroutine
+%endmacro
+
+;---------------------
+; IO
+;---------------------
+
+%macro io.puts_str 1
+  mov bx, %1
+  call io._puts_str
+%endmacro
+
+%macro io.print_str 1
+  mov bx, %1
+  call io._print_str
 %endmacro

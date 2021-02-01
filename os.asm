@@ -70,11 +70,12 @@
 ;---------------------
 
 init:
-  bios.init_tty_mode
   bios.setup_stack
 
-  mov bx, data.msg_real
-  call io.puts_string
+  io.puts_str  data.startup_msg
+  io.puts_str  data.newline
+  io.puts_str  data.repl_msg
+  io.print_str data.prompt
 
 repl:
   bios.read_char_into_al
@@ -89,11 +90,8 @@ repl:
   jmp repl
 
 .done
-  mov bx, data.newline
-  call io.print_string
-
-  mov bx, data.exit_msg
-  call io.puts_string
+  io.print_str data.newline
+  io.print_str data.exit_msg
 
   jmp $ ; hang
 
@@ -108,10 +106,11 @@ repl:
 ; Data
 ;---------------------
 
-data.msg_real: db "[boot] Started up in 16-bit real mode", 0
-data.exit_msg: db "[boot] Exited.", 0
-data.newline:  db 10, 13, 0
-prompt:        db "> ", 0
+data.startup_msg: db "[boot] Started up in 16-bit real mode", 0
+data.exit_msg:    db "[boot] Exited.", 0
+data.newline:     db 10, 13, 0
+data.repl_msg:    db "Enter a command below, and it will be evaluated", 0
+data.prompt:      db "> ", 0
 
 ;---------------------
 ; Required ending
