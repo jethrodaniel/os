@@ -30,14 +30,10 @@
 ;---------------------
 
 %macro subroutine_start 0
-  ; Push all registers onto the stack
-  pusha
+  pusha ; Push all registers onto the stack
 %endmacro
 
 %macro subroutine_end 0
-  ; Pop all registers off the stack
-  popa
-
-  ; Return from this subroutine
-  ret
+  popa ; Pop all registers off the stack
+  ret  ; Return from this subroutine
 %endmacro

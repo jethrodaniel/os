@@ -61,6 +61,10 @@
 ;
 %include "asm/macros.asm"
 
+;---------------------
+; Entry-point
+;---------------------
+
 init:
   bios.init_tty_mode
 
@@ -72,16 +76,23 @@ init:
 
   jmp $ ; hang
 
+;---------------------
+; Include other files
+;---------------------
+
 ; %include "asm/read_string.asm"
 %include "asm/print_string.asm"
+
+;---------------------
+; Data
+;---------------------
 
 msg_real:   db "[boot] Started up in 16-bit real mode", 0
 newline:    db 10, 13, 0
 
-; Pad to the 510th byte with zeros
-;
-times 510-($-$$) db 0
+;---------------------
+; Required ending
+;---------------------
 
-; Tack the magic 2-byte constant at the end
-;
-dw 0xaa55
+times 510-($-$$) db 0 ; Pad to the 510th byte with zeros
+dw 0xaa55             ; Tack the magic 2-byte constant at the end
