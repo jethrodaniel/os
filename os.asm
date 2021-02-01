@@ -35,7 +35,7 @@
 ;
 ; Assorted other things, depending on what you're doing
 ;
-; - setting up a stack (if needed, such as for C)
+; - setting up a stack
 ; - enable protected mode (drop out of real mode)
 ; - jumping into 32-bit mode, or later, into 64-bit
 ;
@@ -47,6 +47,10 @@
 ; == 16-bit mode
 ;
 ; The x86 16 bit mode ...
+;
+; == Interrupts
+;
+; - the list: http://www.ctyme.com/rbrown.htm
 
 ;------------------------;
 
@@ -67,12 +71,29 @@
 
 init:
   bios.init_tty_mode
+  bios.setup_stack
 
   mov bx, data.msg_real
   call puts_string
 
+repl:
   bios.read_char_into_al
+
+  ; Exit if the enter key is pressed.
+  ;
+  cmp al, 13
+  je .done
+
   bios.print_char_in_al
+
+  jmp repl
+
+.done
+  mov bx, data.newline
+  call print_string
+
+  mov bx, data.exit_msg
+  call puts_string
 
   jmp $ ; hang
 
@@ -88,7 +109,9 @@ init:
 ;---------------------
 
 data.msg_real: db "[boot] Started up in 16-bit real mode", 0
+data.exit_msg: db "[boot] Exited.", 0
 data.newline:  db 10, 13, 0
+prompt:        db "> ", 0
 
 ;---------------------
 ; Required ending
