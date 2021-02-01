@@ -79,6 +79,9 @@ init:
   io.print_str data.prompt
 
 repl:
+  ; mov dx, 0x4321
+  ; call io.print_hex
+
   bios.read_char_into_al
 
   ; Exit if the enter key is pressed.
@@ -106,7 +109,7 @@ repl:
 ; Data
 ;---------------------
 
-data.startup_msg: db "[boot] Started up in 16-bit real mode", 0
+data.startup_msg: db "[boot] System started in 16-bit real mode", 0
 data.exit_msg:    db "[boot] Exited.", 0
 data.newline:     db 10, 13, 0
 data.repl_msg:    db "Enter a command below, and it will be evaluated", 0

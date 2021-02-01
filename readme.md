@@ -35,5 +35,6 @@ MIT.
 - http://www.jamesmolloy.co.uk/tutorial_html/index.html
 - https://github.com/nornagon/jonesforth/blob/master/jonesforth.S
 - https://www.forth.com/starting-forth/0-starting-forth/
+- https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html
 
 thanks y'all.
