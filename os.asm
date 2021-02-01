@@ -57,6 +57,8 @@
 [org 0x7c00]
 
 init:
+  bios.init_tty_mode
+
   mov bx, msg_real
   call puts_string
 
@@ -69,7 +71,7 @@ init:
 %include "asm/bios.asm"
 %include "asm/print_string.asm"
 
-msg_real:   db "[boot] Starting up in 16-bit real mode...", 0
+msg_real:   db "[boot] Started up in 16-bit real mode", 0
 newline:    db 10, 13, 0
 
 ; Pad to the 510th byte with zeros

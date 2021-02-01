@@ -2,6 +2,12 @@
 
 [bits 16]
 
+; Initialize tty mode to allow printing to the screen.
+;
+%macro bios.init_tty_mode 0
+  mov ah, 0x0e
+%endmacro
+
 ; BIOS call to read an ASCII character into `al`.
 ;
 %macro bios.read_char_into_al 0
@@ -18,6 +24,9 @@
 ; Subroutines preserve some registers, in order to avoid messing
 ; with the caller's registers (except for any intended side-effects,
 ; such as for a "return" value).
+;
+; This is basically a primitive "calling-convention", to avoid
+; trashing registers.
 
 %macro subroutine_start 0
   ; Push all registers onto the stack
