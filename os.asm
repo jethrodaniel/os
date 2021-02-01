@@ -60,9 +60,10 @@
 ;
 [org 0x7c00]
 
-; Macros are substituted by the preprocessor, we can include them
-; without altering control flow (i.e, before our main `jmp`).
-;
+;---------------------
+; Macros
+;---------------------
+
 %include "asm/macros.asm"
 
 ;---------------------
@@ -96,10 +97,9 @@ repl:
   jmp $ ; hang
 
 ;---------------------
-; Include other files
+; Other assembly files
 ;---------------------
 
-; %include "asm/read_string.asm"
 %include "asm/io.asm"
 
 ;---------------------
