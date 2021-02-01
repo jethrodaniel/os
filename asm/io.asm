@@ -5,16 +5,16 @@
 ; Print (with a newline) the null-terminated string whose address is
 ; in `bx`.
 ;
-puts_string:
+io.puts_string:
   subroutine_start
-  call print_string
+  call io.print_string
   mov bx, data.newline
-  call print_string
+  call io.print_string
   subroutine_end
 
 ; Print the null-terminated string whose address is in `bx`.
 ;
-print_string:
+io.print_string:
   subroutine_start
 
 .print_char:

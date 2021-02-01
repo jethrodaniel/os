@@ -74,7 +74,7 @@ init:
   bios.setup_stack
 
   mov bx, data.msg_real
-  call puts_string
+  call io.puts_string
 
 repl:
   bios.read_char_into_al
@@ -90,10 +90,10 @@ repl:
 
 .done
   mov bx, data.newline
-  call print_string
+  call io.print_string
 
   mov bx, data.exit_msg
-  call puts_string
+  call io.puts_string
 
   jmp $ ; hang
 
@@ -102,7 +102,7 @@ repl:
 ;---------------------
 
 ; %include "asm/read_string.asm"
-%include "asm/print_string.asm"
+%include "asm/io.asm"
 
 ;---------------------
 ; Data
