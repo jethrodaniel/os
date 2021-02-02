@@ -36,5 +36,3 @@ repl:
   io.print_str data.exit_msg
 
   subroutine_end
-
-data.user_input:      db 10, 0

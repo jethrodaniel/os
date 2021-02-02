@@ -75,7 +75,13 @@ init:
 
   io.puts_str data.startup_msg
 
-  call repl
+  ; call repl
+  call io._read_str
+  mov cx, bx
+  io.print_str data.newline
+  mov bx, cx
+  call io._puts_str
+
   jmp $ ; hang
 
 ;---------------------

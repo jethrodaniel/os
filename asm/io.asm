@@ -100,6 +100,33 @@ io.print_hex:
   ; add the current nibble's ASCII
   jmp .add_character_hex
 
+
+; read a \r-terminated string into memory, store address in `bx`.
+;
+io._read_str:
+  push ax
+  mov bx, data.user_input
+.loop
+  bios.read_char_into_al
+  cmp al, 13
+  je .done
+
+  bios.print_char_in_al
+
+  mov [bx], al
+  inc bx
+  jmp .loop
+.done
+  mov bx, data.user_input
+  ; io.print_str data.newline
+  ; io.print_str data.user_input
+  ; subroutine_end
+  pop ax
+  ret
+
+; Only 10 bytes of user input
+data.user_input: resb 10
+
 ; our global template string. We'll replace the zero digits here with the
 ; actual nibble values from the hex input.
 HEX_OUT:
