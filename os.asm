@@ -78,7 +78,7 @@ init:
   io.puts_str  data.repl_msg
   io.print_str data.prompt
 
-repl:
+.repl:
   ; mov dx, 0x4321
   ; call io.print_hex
 
@@ -91,7 +91,7 @@ repl:
 
   bios.print_char_in_al
 
-  jmp repl
+  jmp .repl
 
 .done
   io.print_str data.newline
