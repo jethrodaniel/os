@@ -22,10 +22,8 @@ repl:
   ; call io.print_hex
 
   call io._read_str
-  mov cx, bx
   io.print_str data.newline
   io.print_str data.result_prompt
-  mov bx, cx
   call io._puts_str
 
   io.print_str data.prompt
