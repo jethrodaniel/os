@@ -73,30 +73,9 @@
 init:
   bios.setup_stack
 
-  io.puts_str  data.startup_msg
-  io.puts_str  data.newline
-  io.puts_str  data.repl_msg
-  io.print_str data.prompt
+  io.puts_str data.startup_msg
 
-.repl:
-  ; mov dx, 0x4321
-  ; call io.print_hex
-
-  bios.read_char_into_al
-
-  ; Exit if the enter key is pressed.
-  ;
-  cmp al, 13
-  je .done
-
-  bios.print_char_in_al
-
-  jmp .repl
-
-.done
-  io.print_str data.newline
-  io.print_str data.exit_msg
-
+  call repl
   jmp $ ; hang
 
 ;---------------------
@@ -104,6 +83,7 @@ init:
 ;---------------------
 
 %include "asm/io.asm"
+%include "asm/repl.asm"
 
 ;---------------------
 ; Data
