@@ -75,12 +75,7 @@ init:
 
   io.puts_str data.startup_msg
 
-  ; call repl
-  call io._read_str
-  mov cx, bx
-  io.print_str data.newline
-  mov bx, cx
-  call io._puts_str
+  call repl
 
   jmp $ ; hang
 
@@ -99,7 +94,8 @@ data.startup_msg: db "[boot] System started in 16-bit real mode", 0
 data.exit_msg:    db "[boot] Exited.", 0
 data.newline:     db 10, 13, 0
 data.repl_msg:    db "Enter a command below, and it will be evaluated", 0
-data.prompt:      db "> ", 0
+data.prompt:      db "? ", 0
+data.result_prompt: db "=> ", 0
 
 ;---------------------
 ; Required ending

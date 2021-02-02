@@ -124,8 +124,8 @@ io._read_str:
   pop ax
   ret
 
-; Only 10 bytes of user input
-data.user_input: resb 10
+; Only 25 characters of user input
+data.user_input: resb 25
 
 ; our global template string. We'll replace the zero digits here with the
 ; actual nibble values from the hex input.
