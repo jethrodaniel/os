@@ -4,6 +4,13 @@
 
 ; Start a read-eval print loop.
 ;
+; This is a monitor program, which allows you to interact with
+; memory ells directly.
+;
+; See
+;
+; - https://www.atariarchives.org/mlb/chapter3.php
+;
 repl:
   subroutine_start
 
@@ -27,4 +34,7 @@ repl:
 .done
   io.print_str data.newline
   io.print_str data.exit_msg
+
   subroutine_end
+
+data.user_input:      db 10, 0
