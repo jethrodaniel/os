@@ -129,5 +129,47 @@ io.print_hex:
 
 ; We'll replace the zero digits here with the actual nibble values
 ; from the hex input.
-data.hex_template:
-  db '0x0000', 0
+data.hex_template: db '0x0000', 0
+
+
+; Convert hexadecimal string whose address is in `bx` into a number,
+; store in `dx`.
+;
+; String **must** be 4 characters long, plus a null byte.
+;
+; ```
+; 0xbeef =   f * 16^0
+;          + e * 16^1
+;          + e * 16^2
+;          + b * 16^3
+; ```
+;
+io.convert_hex_str_to_num:
+  push ax
+  push cx
+
+  mov cx, bx ; original bx
+  mov ax, 0  ; tmp
+  mov dx, 0  ; sum
+.next_char:
+  ; Load the next byte from `bx` into `al`
+  mov al, [bx]
+
+  ; add that value to our sum
+  add dl, al
+
+  ; Move to the next byte, i.e, the next ASCII character
+  inc bx
+
+  ; If `al` is `0`, i.e, `\0` or the null byte, then we're done
+  cmp al, 0
+  je .done
+
+  jmp .next_char
+.done:
+  mov bx, cx
+  movsx dx, dl
+
+  pop cx
+  pop ax
+  ret
