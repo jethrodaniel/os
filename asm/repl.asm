@@ -5,11 +5,12 @@
 ; Start a read-eval print loop.
 ;
 ; This is a monitor program, which allows you to interact with
-; memory ells directly.
+; memory cells directly.
 ;
 ; See
 ;
 ; - https://www.atariarchives.org/mlb/chapter3.php
+; - https://www.youtube.com/watch?reload=9&v=Qn6TCXJmITM
 ;
 repl:
   subroutine_start
@@ -18,14 +19,18 @@ repl:
   io.print_str data.prompt
 
 .loop
-  ; mov dx, 0x4321
-  ; call io.print_hex
-
   call io._read_str
   io.print_str data.newline
   io.print_str data.result_prompt
-  call io._puts_str
 
+  ; call io.convert_hex_str_to_num
+  ; call io.print_hex
+
+  ; if we just typed a number, print contents of that address
+  ; cmp al,
+  io.print_str data.user_input
+
+  io.print_str data.newline
   io.print_str data.prompt
   jmp .loop
 .done

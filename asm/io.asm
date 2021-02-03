@@ -2,21 +2,10 @@
 
 [bits 16]
 
-; Print (with a newline) the null-terminated string whose address is
-; in `bx`.
-;
-io._puts_str:
-  subroutine_start
-  call io._print_str
-  mov bx, data.newline
-  call io._print_str
-  subroutine_end
-
 ; Print the null-terminated string whose address is in `bx`.
 ;
 io._print_str:
-  subroutine_start
-
+  push ax
 .print_char:
   ; Load the next byte from `bx` into `al` for printing
   mov al, [bx]
@@ -32,9 +21,42 @@ io._print_str:
 
   ; Repeat with the next byte
   jmp .print_char
-
 .done:
-  subroutine_end
+  pop ax
+  ret
+
+; Print (with a newline) the null-terminated string whose address is
+; in `bx`.
+;
+io._puts_str:
+  call io._print_str
+  push bx
+  mov bx, data.newline
+  call io._print_str
+  pop bx
+  ret
+
+; Read a \r-terminated string into memory, store address in `bx`,
+; echo input when typed.
+;
+io._read_str:
+  push ax
+  mov bx, data.user_input
+.loop
+  bios.read_char_into_al
+  cmp al, 13 ; if \r
+  je .done
+
+  bios.print_char_in_al
+
+  mov [bx], al
+  inc bx
+  jmp .loop
+.done
+  mov bx, data.user_input
+  pop ax
+  ret
+data.user_input: resb 25 ; 25 characters of user input
 
 
 ; Print a number in hexadecimal whose address is in `dx`.
@@ -42,10 +64,12 @@ io._print_str:
 ; used as an answer here: https://stackoverflow.com/a/27686875/7132678
 ;
 io.print_hex:
-  subroutine_start
+  push si
+  push bx
+  push cx
 
-  ; use si to keep track of the current char in our template string mov si, HEX_OUT + 2
-  mov si, HEX_OUT + 2
+  ; use si to keep track of the current char in our template string mov si, data.hex_template + 2
+  mov si, data.hex_template + 2
 
   ; start a counter of how many nibbles we've processed, stop at 4
   mov cx, 0
@@ -86,12 +110,15 @@ io.print_hex:
 .done:
   ; copy the current nibble's ASCII value to a char in our template
   ; string
-  mov bx, HEX_OUT
+  mov bx, data.hex_template
 
   ; print our template string
   call io._print_str
 
-  subroutine_end
+  pop cx
+  pop bx
+  pop si
+  ret
 
 .add_7:
   ; add 7 to our current nibble's ASCII value, in order to get letters
@@ -100,34 +127,7 @@ io.print_hex:
   ; add the current nibble's ASCII
   jmp .add_character_hex
 
-
-; read a \r-terminated string into memory, store address in `bx`.
-;
-io._read_str:
-  push ax
-  mov bx, data.user_input
-.loop
-  bios.read_char_into_al
-  cmp al, 13
-  je .done
-
-  bios.print_char_in_al
-
-  mov [bx], al
-  inc bx
-  jmp .loop
-.done
-  mov bx, data.user_input
-  ; io.print_str data.newline
-  ; io.print_str data.user_input
-  ; subroutine_end
-  pop ax
-  ret
-
-; Only 25 characters of user input
-data.user_input: resb 25
-
-; our global template string. We'll replace the zero digits here with the
-; actual nibble values from the hex input.
-HEX_OUT:
+; We'll replace the zero digits here with the actual nibble values
+; from the hex input.
+data.hex_template:
   db '0x0000', 0

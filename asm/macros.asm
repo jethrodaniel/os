@@ -31,19 +31,6 @@
 %endmacro
 
 ;---------------------
-; Subroutines
-;---------------------
-
-%macro subroutine_start 0
-  pusha ; Push all registers onto the stack
-%endmacro
-
-%macro subroutine_end 0
-  popa ; Pop all registers off the stack
-  ret  ; Return from this subroutine
-%endmacro
-
-;---------------------
 ; IO
 ;---------------------
 
