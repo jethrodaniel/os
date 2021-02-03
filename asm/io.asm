@@ -153,18 +153,20 @@ io.convert_hex_str_to_num:
 .next_char:
   ; Load the next byte from `bx` into `al`
   mov al, [bx]
+  ; Move to the next byte, i.e, the next ASCII character
+  inc bx
 
-  ; If our hex digit was > 9, it'll be > 0x39, so add 7 to get
-  ; ASCII letters
-  ; cmp bh, 0x39
-  ; jg .add_7
+  ; We're done if `al` is `\0`
+  cmp ax, 0
+  je .done
 
-  ; cmp al, 0x39
-  ; jg .minus_7
+  ; If `al` is `A-F`, then subtract an additional 7
+  cmp al, 0x39
+  jg .minus_7
 .minus_7_ret:
 
-  ; ; subtract 0x30 to get the numeric value from the ASCII value
-  ; sub al, 0x30
+  ; subtract 0x30 to get the numeric value from the ASCII value
+  sub al, 0x30
 
   ; 0 - 0x30
   ; 1 - 0x31
@@ -173,16 +175,9 @@ io.convert_hex_str_to_num:
   movzx ax, al
   add dx, ax
 
-  ; Move to the next byte, i.e, the next ASCII character
-  inc bx
-
-  ; If `al` is `0`, i.e, `\0` or the null byte, then we're done
-  cmp ax, 0
-  je .done
-
   jmp .next_char
 .minus_7
-  sub al, 0x07
+  sub al, 0x7
   jmp .minus_7_ret
 .done:
   pop bx ; restore original bx
