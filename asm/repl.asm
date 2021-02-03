@@ -21,7 +21,13 @@ repl:
   mov word [bx], 0
 
   ; read a line from the user
+  ; bx - address of string
+  ; dx - strlen
   call io._read_str
+
+  io.print_str data.newline
+  io.print_str data.len
+  call io.print_hex
 
   ; todo: shutdown system
   ; cmp ax, 113 ; q
@@ -40,6 +46,7 @@ repl:
   call io.convert_hex_str_to_num
   call io.print_hex
 
+
 .noinput:
   io.print_str data.newline
   io.print_str data.prompt
@@ -48,3 +55,5 @@ repl:
   io.print_str data.newline
   io.print_str data.exit_msg
   ret
+
+data.len: db "input length: ", 0

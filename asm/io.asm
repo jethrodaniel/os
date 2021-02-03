@@ -39,9 +39,12 @@ io._puts_str:
 ; Read a \r-terminated string into memory, store address in `bx`,
 ; echo input when typed.
 ;
+; Stores strlen in `dx`.
+;
 io._read_str:
   push ax
   mov bx, data.user_input
+  mov dx, 0
 .loop
   bios.read_char_into_al
   cmp al, 13 ; if \r
@@ -51,6 +54,7 @@ io._read_str:
 
   mov [bx], al
   inc bx
+  inc dx
   jmp .loop
 .done
   mov bx, data.user_input
@@ -135,21 +139,12 @@ data.hex_template: db '0x0000', 0
 ; Convert hexadecimal string whose address is in `bx` into a number,
 ; store in `dx`.
 ;
-; String **must** be 4 characters long, plus a null byte.
-;
-; ```
-; 0xbeef =   f * 16^0
-;          + e * 16^1
-;          + e * 16^2
-;          + b * 16^3
-; ```
-;
 io.convert_hex_str_to_num:
   push ax
 
-  push bx ; store original bx
-  mov ax, 0  ; tmp
-  mov dx, 0  ; sum
+  push bx   ; store original bx
+  mov ax, 0 ; tmp
+  mov dx, 0 ; sum
 .next_char:
   ; Load the next byte from `bx` into `al`
   mov al, [bx]
@@ -172,7 +167,7 @@ io.convert_hex_str_to_num:
   ; 1 - 0x31
 
   ; add that value to our sum
-  movzx ax, al
+  xor ah, ah
   add dx, ax
 
   jmp .next_char
