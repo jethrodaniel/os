@@ -23,9 +23,9 @@ repl:
   ; read a line from the user
   call io._read_str
 
-  ; if we just typed a number, print contents of that address
-  ; io.print_str data.user_input
-  ; call io._print_str
+  ; todo: shutdown system
+  ; cmp ax, 113 ; q
+  ; je shutdown
 
   ; If we entered a blank line, start input over
   mov ax, [bx]
@@ -36,8 +36,8 @@ repl:
   io.print_str data.newline
   io.print_str data.result_prompt
 
+  ; We're expecting hex input, convert that string into a number
   call io.convert_hex_str_to_num
-  ; mov dx, 0xbeef
   call io.print_hex
 
 .noinput:
