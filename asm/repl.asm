@@ -36,6 +36,11 @@ repl:
   cmp al, 0
   je .noinput
 
+  ; If we entered `r`, show registers
+  mov al, [data.input]
+  cmp al, 114 ; r
+  je .show_registers
+
   mov bx, data.newline
   call io.print
 
@@ -61,6 +66,30 @@ repl:
   mov bx, data.prompt
   call io.print
   jmp .loop
+.show_registers:
+  mov bx, data.newline
+  call io.print
+
+%macro print_reg 1
+  push %1
+  mov bx, data.reg_%1
+  call io.print
+  pop %1
+
+  push %1
+  mov dx, %1
+  call io.print_hex
+  mov bx, data.newline
+  call io.print
+  pop %1
+%endmacro
+
+  print_reg ax
+  print_reg bx
+  print_reg cx
+  print_reg dx
+
+  jmp .noinput
 .done:
   mov bx, data.newline
   call io.print
@@ -69,4 +98,8 @@ repl:
   pop bx
   ret
 
-data.len: db "input length: ", 0
+data.len: db "len: ", 0
+data.reg_ax: db "AX: ", 0
+data.reg_bx: db "BX: ", 0
+data.reg_cx: db "CX: ", 0
+data.reg_dx: db "DX: ", 0

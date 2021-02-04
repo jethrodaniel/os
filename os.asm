@@ -89,8 +89,8 @@ init:
 
   call repl
 
-  mov bx, data.got_to_end_msg
-  call io.print
+  ; mov bx, data.got_to_end_msg
+  ; call io.print
   jmp $ ; hang
 
 ;---------------------
@@ -107,10 +107,10 @@ init:
 data.startup_msg: db "[boot] System started in 16-bit real mode", 0
 data.exit_msg:    db "[boot] Exited.", 0
 data.newline:     db 10, 13, 0
-data.repl_msg:    db "Enter a command below, and it will be evaluated", 0
+data.repl_msg:    db "repl msg", 0
 data.prompt:      db "? ", 0
 data.result_prompt:  db "=> ", 0
-data.got_to_end_msg: db "Unexpected kernel exit"
+; data.got_to_end_msg: db "Unexpected kernel exit"
 data.boot_drive: db 0
 data.input: resb 25 ; 25 characters of user input
 
