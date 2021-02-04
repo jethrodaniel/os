@@ -9,16 +9,23 @@ print prompt
 loop do
   c = $stdin.noecho(&:getch).ord
 
-  exit if c == 113 # 'q'
+  if c == 113 # 'q'
+    print "\n"
+    exit
+  end
 
   print c.chr
   # print c
 
+  # TODO: continue to next line if unclosed parens
   if c == 13 # "\r"
     print prompt
     print "\n"
-    break
+    print prompt
+    redo
   end
+
+
 end
 
 puts "[lisp] Exited."
