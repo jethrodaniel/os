@@ -20,6 +20,9 @@
   int 0x10
 %endmacro
 
+;
+; TODO: revisit this
+;
 ; Initialize the stack.
 ;
 %macro bios.setup_stack 0
@@ -27,7 +30,7 @@
   mov ds, ax
   mov es, ax
   mov ss, ax     ; setup stack
-  mov sp, 0x7c00 ; stack grows downwards from 0x7c00
+  ; mov sp, 0x7c00 ; stack grows downwards from 0x7c00
 %endmacro
 
 ;---------------------

@@ -46,7 +46,6 @@ repl:
   call io.convert_hex_str_to_num
   call io.print_hex
 
-
 .noinput:
   io.print_str data.newline
   io.print_str data.prompt
