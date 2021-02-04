@@ -133,23 +133,27 @@ io.print_hex:
 
 data.hex_template: db '0x0000', 0
 
-; Convert hexadecimal string whose address is in `bx` into a number,
-; store in `dx`.
+
+; Convert hexadecimal string into a number, place result in `dx`.
+;
+; Initial string address is in `bx`, length in `dx`.
 ;
 io.convert_hex_str_to_num:
   push ax
+  push bx
+  push cx
+  push si
 
-  push bx   ; store original bx
-  mov ax, 0 ; tmp
-  mov dx, 0 ; sum
+  mov cx, 0 ; sum
 .next_char:
   ; Load the next byte from `bx` into `al`
   mov al, [bx]
   ; Move to the next byte, i.e, the next ASCII character
   inc bx
 
-  ; We're done if `al` is `\0`
-  cmp ax, 0
+  ; Finished if we see null byte
+  ; TODO: actually just use the strlen info
+  cmp al, 0
   je .done
 
   ; If `al` is `A-F`, then subtract an additional 7
@@ -163,16 +167,30 @@ io.convert_hex_str_to_num:
   ; 0 - 0x30
   ; 1 - 0x31
 
-  ; add that value to our sum
+  ; zero extend `al`
   xor ah, ah
-  add dx, ax
+
+  ; TODO: convert the digit to a power of 16
+  ; .multiply_again:
+  ;   imul ax, 16
+  ;   dec si
+  ;   cmp si, 0
+  ;   je .break
+  ;   jmp .multiply_again
+  ; .break:
+
+  ; add that value to our sum
+  add cx, ax
 
   jmp .next_char
 .minus_7:
   sub al, 0x7
   jmp .minus_7_ret
 .done:
-  pop bx ; restore original bx
-
+  mov dx, cx
+  pop si
+  pop cx
+  pop bx
   pop ax
   ret
+data.hex_curr_n: db 0
