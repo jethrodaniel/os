@@ -41,6 +41,7 @@
 ;
 ; References:
 ;
+; - http://www.cs.cmu.edu/~410-s07/p4/p4-boot.pdf
 ; - https://appusajeev.wordpress.com/2011/01/27/writing-a-16-bit-real-mode-os-nasm/
 ; - https://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-en-4/s1-boot-init-shutdown-process.html
 ;
@@ -71,12 +72,23 @@
 ;---------------------
 
 init:
-  bios.setup_stack
+  ; Setup stack.
+  ;
+  ; set stack base to an address far away from 0x7c00 so that we don't
+  ; get overwritten by our bootloader.
+  ;
+  ; if the stack is empty then sp points to bp.
+  mov bp, 0x9000
+  mov sp, bp
+
+  ; BIOS stores our boot drive in dl
+  mov [data.boot_drive], dl
 
   io.puts_str data.startup_msg
 
   call repl
 
+  io.print_str data.got_to_end_msg
   jmp $ ; hang
 
 ;---------------------
@@ -95,7 +107,9 @@ data.exit_msg:    db "[boot] Exited.", 0
 data.newline:     db 10, 13, 0
 data.repl_msg:    db "Enter a command below, and it will be evaluated", 0
 data.prompt:      db "? ", 0
-data.result_prompt: db "=> ", 0
+data.result_prompt:  db "=> ", 0
+data.got_to_end_msg: db "Unexpected kernel exit"
+data.boot_drive: db 0
 
 ;---------------------
 ; Required ending
