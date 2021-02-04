@@ -4,7 +4,7 @@
 
 ; Print the null-terminated string whose address is in `bx`.
 ;
-io._print_str:
+io.print:
   push ax
 .print_char:
   ; Load the next byte from `bx` into `al` for printing
@@ -13,7 +13,7 @@ io._print_str:
   ; Move to the next byte, i.e, the next ASCII character
   inc bx
 
-  ; If `al` is `0`, i.e, `\0` or the null byte, then we're done
+  ; Done when we find the null terminator
   cmp al, 0
   je .done
 
@@ -28,54 +28,54 @@ io._print_str:
 ; Print (with a newline) the null-terminated string whose address is
 ; in `bx`.
 ;
-io._puts_str:
-  call io._print_str
+io.puts:
+  call io.print
   push bx
   mov bx, data.newline
-  call io._print_str
+  call io.print
   pop bx
   ret
 
-; Read a \r-terminated string into memory, store address in `bx`,
-; echo input when typed.
+; Read (with echo) a \r-terminated string into `bx`, store
+; length in `dx`.
 ;
-; Stores strlen in `dx`.
-;
-io._read_str:
+io.readline:
   push ax
-  mov bx, data.user_input
   mov dx, 0
-.loop
+.loop:
   bios.read_char_into_al
-  cmp al, 13 ; if \r
+
+  ; if \r
+  cmp al, 13
   je .done
 
+  ; echo
   bios.print_char_in_al
 
+  ; get next char, advance
   mov [bx], al
   inc bx
+
+  ; increment length
   inc dx
+
   jmp .loop
-.done
-  mov bx, data.user_input
+.done:
   pop ax
   ret
-data.user_input: resb 25 ; 25 characters of user input
 
 
-; Print a number in hexadecimal whose address is in `dx`.
-;
-; used as an answer here: https://stackoverflow.com/a/27686875/7132678
+; Print a base10 string in hex whose address is in `dx`.
 ;
 io.print_hex:
   push si
   push bx
   push cx
 
-  ; use si to keep track of the current char in our template string mov si, data.hex_template + 2
+  ; use si to keep track of the current char in our template string
   mov si, data.hex_template + 2
 
-  ; start a counter of how many nibbles we've processed, stop at 4
+  ; count how many nibbles we've processed, stop at 4
   mov cx, 0
 
 .next_character:
@@ -117,7 +117,7 @@ io.print_hex:
   mov bx, data.hex_template
 
   ; print our template string
-  call io._print_str
+  call io.print
 
   pop cx
   pop bx
@@ -131,10 +131,7 @@ io.print_hex:
   ; add the current nibble's ASCII
   jmp .add_character_hex
 
-; We'll replace the zero digits here with the actual nibble values
-; from the hex input.
 data.hex_template: db '0x0000', 0
-
 
 ; Convert hexadecimal string whose address is in `bx` into a number,
 ; store in `dx`.
@@ -171,7 +168,7 @@ io.convert_hex_str_to_num:
   add dx, ax
 
   jmp .next_char
-.minus_7
+.minus_7:
   sub al, 0x7
   jmp .minus_7_ret
 .done:

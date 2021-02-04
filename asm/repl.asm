@@ -13,46 +13,60 @@
 ; - https://www.youtube.com/watch?reload=9&v=Qn6TCXJmITM
 ;
 repl:
-  io.puts_str  data.repl_msg
-  io.print_str data.prompt
+  push bx
+  push dx
 
-.loop
+  mov bx, data.repl_msg
+  call io.puts
+  mov bx, data.prompt
+  call io.print
+
+.loop:
   ; clear the current line's memory (erase old line)
+  mov bx, data.input
   mov word [bx], 0
 
-  ; read a line from the user
-  ; bx - address of string
-  ; dx - strlen
-  call io._read_str
+  ; set length to 0
+  mov dx, 0
 
-  io.print_str data.newline
-  io.print_str data.len
-  call io.print_hex
-
-  ; todo: shutdown system
-  ; cmp ax, 113 ; q
-  ; je shutdown
+  call io.readline
 
   ; If we entered a blank line, start input over
-  mov ax, [bx]
-  cmp ax, 0
+  mov al, [data.input]
+  cmp al, 0
   je .noinput
 
+  mov bx, data.newline
+  call io.print
+
+  ; tmp: input length: 0x000
+  mov bx, data.len
+  call io.print
+  call io.print_hex
+
   ; We did get user input, so print the new prompt for results
-  io.print_str data.newline
-  io.print_str data.result_prompt
+  mov bx, data.newline
+  call io.print
+  mov bx, data.result_prompt
+  call io.print
 
   ; We're expecting hex input, convert that string into a number
+  mov bx, data.input
   call io.convert_hex_str_to_num
   call io.print_hex
 
 .noinput:
-  io.print_str data.newline
-  io.print_str data.prompt
+  mov bx, data.newline
+  call io.print
+  mov bx, data.prompt
+  call io.print
   jmp .loop
-.done
-  io.print_str data.newline
-  io.print_str data.exit_msg
+.done:
+  mov bx, data.newline
+  call io.print
+  mov bx, data.exit_msg
+  call io.print
+  pop bx
   ret
 
 data.len: db "input length: ", 0

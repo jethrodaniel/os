@@ -19,21 +19,3 @@
   mov ah, 0eh
   int 0x10
 %endmacro
-
-;---------------------
-; IO
-;---------------------
-
-%macro io.puts_str 1
-  push bx
-  mov bx, %1
-  call io._puts_str
-  pop bx
-%endmacro
-
-%macro io.print_str 1
-  push bx
-  mov bx, %1
-  call io._print_str
-  pop bx
-%endmacro

@@ -84,11 +84,13 @@ init:
   ; BIOS stores our boot drive in dl
   mov [data.boot_drive], dl
 
-  io.puts_str data.startup_msg
+  mov bx, data.startup_msg
+  call io.puts
 
   call repl
 
-  io.print_str data.got_to_end_msg
+  mov bx, data.got_to_end_msg
+  call io.print
   jmp $ ; hang
 
 ;---------------------
@@ -110,6 +112,7 @@ data.prompt:      db "? ", 0
 data.result_prompt:  db "=> ", 0
 data.got_to_end_msg: db "Unexpected kernel exit"
 data.boot_drive: db 0
+data.input: resb 25 ; 25 characters of user input
 
 ;---------------------
 ; Required ending
