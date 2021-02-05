@@ -10,4 +10,11 @@ boot.bin: os.asm
 	wc -c $@ # 512 todo,verify this
 
 clean:
-	rm -rf *.bin
+	rm -rf *.bin build
+
+build:
+	mkdir -p build
+build/forth: build
+	gcc forth.c -Wall -o $@
+forth: build/forth
+	./$<
