@@ -134,9 +134,9 @@ data.stage1:
   mov bx, data.ok_msg
   call io.puts
 
-  call repl
+  call forth
 
-%include "asm/monitor.asm"
+%include "asm/forth.asm"
 
 
 ; incbin "high-level-lang"
