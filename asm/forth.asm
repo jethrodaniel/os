@@ -15,6 +15,9 @@
 ;   - http://www.retroprogramming.com/2012/04/itsy-forth-primitives.html
 ;   - http://www.retroprogramming.com/2012/06/itsy-forth-compiler.html
 ;   - http://www.retroprogramming.com/2012/09/itsy-documenting-bit-twiddling-voodoo.html
+;   - https://github.com/phf/itsy-forth/blob/master/msdos/itsy.asm
+;   - https://github.com/phf/itsy-forth/blob/master/msdos/macros.asm
+;
 ;
 forth:
   push bx
