@@ -16,6 +16,16 @@ repl:
 
   mov bx, data.monitor_start_msg
   call io.puts
+  mov bx, data.newline
+  call io.print
+  mov bx, data.monitor_help0
+  call io.puts
+  mov bx, data.monitor_help1
+  call io.puts
+  mov bx, data.monitor_help2
+  call io.puts
+  mov bx, data.newline
+  call io.print
   mov bx, data.monitor_prompt
   call io.print
 
@@ -34,19 +44,17 @@ repl:
   cmp al, 0
   je .noinput
 
-  ; If we entered `r`, show registers
+  ; If we entered `R/r`, show registers
   mov al, [data.monitor_input]
   cmp al, 114 ; r
+  je .show_registers
+  cmp al, 82 ; R
   je .show_registers
 
   mov bx, data.newline
   call io.print
 
-  mov bx, data.monitor_input
-  call io.print
-
-  ; tmp: input length: 0x000
-  mov bx, data.len
+  mov bx, data.monitor_len_msg
   call io.print
   call io.print_hex
 
@@ -105,9 +113,12 @@ data.monitor_result_prompt: db "=> ", 0
 data.monitor_input:         resb 25 ; characters of user input
 
 data.monitor_start_msg: db "[stage1] Started monitor...", 0
+data.monitor_help0:     db "Help:", 0
+data.monitor_help1:     db "<n>  show value at address <n>", 0
+data.monitor_help2:     db "r    show registers", 0
 data.monitor_end_msg:   db "[stage1] Exited monitor.", 0
 
-data.len: db "len: ", 0
+data.monitor_len_msg: db "length: ", 0
 data.reg_ax: db "AX: ", 0
 data.reg_bx: db "BX: ", 0
 data.reg_cx: db "CX: ", 0

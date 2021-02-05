@@ -124,7 +124,7 @@ dw 0xaa55             ; Tack the magic 2-byte constant at the end
 ;
 ; Begin executing at address 0x7ee, the second boot sector
 ;
-; Stage1 will:
+; Stage 1 will:
 ;
 ; - ...
 ;
@@ -136,8 +136,7 @@ data.stage1:
 
   call repl
 
-%include "asm/repl.asm"
+%include "asm/monitor.asm"
 
-data.prompt:      db "? ", 0
-data.result_prompt:  db "=> ", 0
-data.input: resb 25 ; 25 characters of user input
+
+; incbin "high-level-lang"
