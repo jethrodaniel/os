@@ -16,7 +16,7 @@ repl:
   push bx
   push dx
 
-  mov bx, data.repl_msg
+  mov bx, data.monitor_start_msg
   call io.puts
   mov bx, data.prompt
   call io.print
@@ -42,6 +42,9 @@ repl:
   je .show_registers
 
   mov bx, data.newline
+  call io.print
+
+  mov bx, data.input
   call io.print
 
   ; tmp: input length: 0x000
@@ -93,11 +96,13 @@ repl:
 .done:
   mov bx, data.newline
   call io.print
-  mov bx, data.exit_msg
+  mov bx, data.monitor_end_msg
   call io.print
   pop bx
   ret
 
+data.monitor_start_msg: db "[stage1] Started monitor...", 0
+data.monitor_end_msg:   db "[stage1] Exited monitor.", 0
 data.len: db "len: ", 0
 data.reg_ax: db "AX: ", 0
 data.reg_bx: db "BX: ", 0

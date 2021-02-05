@@ -1,122 +1,143 @@
 ; vim: :set ft=nasm:
 
+;--------------------
 ; This is a program to be booted by an x86 computer.
-;
-; == x86 boot sequence
-;
-; When the computer is booted, it looks at the end of system memory for the
-; BIOS (Basic Input/Output System) program, then runs it. This is a chunk of
-; startup code located in read-only memory, which provides low-level access to
-; the system.
-;
-; BIOS checks the system, locates peripherial devices, then locates bootable
-; devices A bootable device is one such that the first 512 bytes ends with the
-; magic number 0x55aa. That first 512 bytes is known as the Master Boot Record
-; (MBR), or the device's bootloader.
-;
-; After the user (or the BIOS) selects a boot device, BIOS loads that device's
-; bootloader into memory at address 0x7c00, then passes control to it.
-;
-; At this point, the CPU is executing in 16-bit real mode.
-;
-; == x86 bootloader
-;
-; At this point, the bootloader has a few jobs:
-;
-; 1. load more code
-;
-; Since 512 bytes isn't much to work with, the bootloader's main job is
-; to load more code from disk into memory.
-;
-; Many bootloaders load yet another bootloader, in a process known as
-; chaining.
-;
-; 2. Initialize the CPU
-;
-; Assorted other things, depending on what you're doing
-;
-; - setting up a stack
-; - enable protected mode (drop out of real mode)
-; - jumping into 32-bit mode, or later, into 64-bit
 ;
 ; References:
 ;
 ; - http://www.cs.cmu.edu/~410-s07/p4/p4-boot.pdf
-; - https://appusajeev.wordpress.com/2011/01/27/writing-a-16-bit-real-mode-os-nasm/
-; - https://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-en-4/s1-boot-init-shutdown-process.html
 ;
-; == 16-bit mode
+; == x86 boot sequence
 ;
-; The x86 16 bit mode ...
+; BIOS begins by doing a few things:
 ;
-; == Interrupts
+; - run a system check
+; - dicover peripherials
+; - discover drives and bootloaders
+; - relocate one bootloader to 0x7c00 and execute it
 ;
-; - the list: http://www.ctyme.com/rbrown.htm
+; That's stage0, below.
+;
+;--------------------
 
-;------------------------;
+;-------------------- Stage 0 --------------------
+;
+; The bootloader is constrained (along with the partition table), to
+; the first sector of the disk (512 bytes). As such, the first thing
+; a bootloader does is usually to load a second stage of the
+; bootloader.
+;
+; Stage0 will:
+;
+; - [ ] disable interrupts
+; - [ ] canonicalize %CS:%EIP
+; - [ ] load segment registers (%DS, %ES, %FS, %GS, %SS)
+; - [ ] set the stack pointer
+; - [ ] enable interrupts
+; - [ ] reset the floppy disk controller
+; - [ ] read stage1 sectors from the floppy
+; - [ ] jump to stage1 code
+;
+;-------------------------------------------------
 
+; x86 boots up into 16-bit real mode.
+;
 [bits 16]
 
-; Add a global offset, so we don't have to add 0x7c00 to all the addresses.
+; Add a global offset, so we don't have to add 0x7c00 to all
+; the addresses.
 ;
 [org 0x7c00]
 
-;---------------------
 ; Macros
-;---------------------
-
+;
 %include "asm/macros.asm"
 
-;---------------------
 ; Entry-point
-;---------------------
-
-init:
+;
+data.stage0:
   ; Setup stack.
   ;
-  ; set stack base to an address far away from 0x7c00 so that we don't
-  ; get overwritten by our bootloader.
+  ; TODO: make sure I understand this
   ;
-  ; if the stack is empty then sp points to bp.
+  ; ;Set stack base to an address far away from 0x7c00 so that we don't
+  ; ;get overwritten by our bootloader.
+  ;
+  ; ;If the stack is empty then sp points to bp.
+  ;
   mov bp, 0x9000
   mov sp, bp
 
-  ; BIOS stores our boot drive in dl
+  ; BIOS stores our boot drive in dl, we take note of this.
+  ;
   mov [data.boot_drive], dl
 
-  mov bx, data.startup_msg
+  mov bx, data.stage0_msg
+  call io.puts
+
+  mov bx, data.stage1_msg
+  call io.print
+
+  call load_stage1
+  call data.stage1
+
+  ; We shouldn't get here
+  mov bx, data.end_msg
+  call io.print
+
+  jmp $
+
+; Helpers
+;
+%include "asm/io.asm"
+%include "asm/disk_load.asm"
+
+; Load up more space, then jump to stage 1.
+;
+; We load 512 bytes * 5 = 2560 bytes = 2.56Kb
+;
+load_stage1:
+  mov bx, data.stage1
+  mov dh, 5
+  mov dl, [data.boot_drive]
+  call disk_load
+  ret
+
+; Data
+;
+data.stage0_msg: db "[stage0] BIOS has loaded stage0.", 0
+data.stage1_msg: db "[stage0] Loading stage1...", 0
+data.ok_msg:     db " ok", 0
+data.end_msg:    db "[stage0] Error - returned from stage1."
+data.boot_drive: db 0
+data.newline:    db 10, 13, 0
+
+; Required ending.
+;
+; The bootloader must by 512 bytes, with 0x55aa as the last 2 bytes.
+;
+times 510-($-$$) db 0 ; Pad to the 510th byte with zeros
+dw 0xaa55             ; Tack the magic 2-byte constant at the end
+
+
+;-------------------- Stage 1 --------------------
+;
+; Begin executing at address 0x7ee, the second boot sector
+;
+; Stage1 will:
+;
+; - ...
+;
+;-------------------------------------------------
+
+data.stage1:
+  mov bx, data.ok_msg
   call io.puts
 
   call repl
 
-  ; mov bx, data.got_to_end_msg
-  ; call io.print
-  jmp $ ; hang
-
-;---------------------
-; Other assembly files
-;---------------------
-
-%include "asm/io.asm"
 %include "asm/repl.asm"
 
-;---------------------
-; Data
-;---------------------
-
-data.startup_msg: db "[boot] System started in 16-bit real mode", 0
-data.exit_msg:    db "[boot] Exited.", 0
-data.newline:     db 10, 13, 0
-data.repl_msg:    db "repl msg", 0
 data.prompt:      db "? ", 0
 data.result_prompt:  db "=> ", 0
-; data.got_to_end_msg: db "Unexpected kernel exit"
-data.boot_drive: db 0
 data.input: resb 25 ; 25 characters of user input
-
-;---------------------
-; Required ending
-;---------------------
-
-times 510-($-$$) db 0 ; Pad to the 510th byte with zeros
-dw 0xaa55             ; Tack the magic 2-byte constant at the end

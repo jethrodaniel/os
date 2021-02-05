@@ -145,6 +145,7 @@ io.convert_hex_str_to_num:
   push si
 
   mov cx, 0 ; sum
+  mov si, dx ; current char
 .next_char:
   ; Load the next byte from `bx` into `al`
   mov al, [bx]
@@ -170,14 +171,16 @@ io.convert_hex_str_to_num:
   ; zero extend `al`
   xor ah, ah
 
+  .check_if_add:
+  cmp si, 2
+  je .add_this_digit
   ; TODO: convert the digit to a power of 16
-  ; .multiply_again:
-  ;   imul ax, 16
-  ;   dec si
-  ;   cmp si, 0
-  ;   je .break
-  ;   jmp .multiply_again
-  ; .break:
+  .multiply_again:
+    ; imul al, 16
+    shl al, 4
+    dec si
+    jmp .check_if_add
+  .add_this_digit:
 
   ; add that value to our sum
   add cx, ax
