@@ -11,10 +11,3 @@ boot.bin: os.asm
 
 clean:
 	rm -rf *.bin build
-
-build:
-	mkdir -p build
-build/forth: build
-	gcc forth.c -Wall -o $@
-forth: build/forth
-	./$<
