@@ -2,9 +2,7 @@
 
 [bits 16]
 
-; Start a read-eval print loop.
-;
-; This is a monitor program, which allows you to interact with
+; A monitor program, which allows you to interact with
 ; memory cells directly.
 ;
 ; See
@@ -18,12 +16,12 @@ repl:
 
   mov bx, data.monitor_start_msg
   call io.puts
-  mov bx, data.prompt
+  mov bx, data.monitor_prompt
   call io.print
 
 .loop:
   ; clear the current line's memory (erase old line)
-  mov bx, data.input
+  mov bx, data.monitor_input
   mov word [bx], 0
 
   ; set length to 0
@@ -32,19 +30,19 @@ repl:
   call io.readline
 
   ; If we entered a blank line, start input over
-  mov al, [data.input]
+  mov al, [data.monitor_input]
   cmp al, 0
   je .noinput
 
   ; If we entered `r`, show registers
-  mov al, [data.input]
+  mov al, [data.monitor_input]
   cmp al, 114 ; r
   je .show_registers
 
   mov bx, data.newline
   call io.print
 
-  mov bx, data.input
+  mov bx, data.monitor_input
   call io.print
 
   ; tmp: input length: 0x000
@@ -55,18 +53,18 @@ repl:
   ; We did get user input, so print the new prompt for results
   mov bx, data.newline
   call io.print
-  mov bx, data.result_prompt
+  mov bx, data.monitor_result_prompt
   call io.print
 
   ; We're expecting hex input, convert that string into a number
-  mov bx, data.input
+  mov bx, data.monitor_input
   call io.convert_hex_str_to_num
   call io.print_hex
 
 .noinput:
   mov bx, data.newline
   call io.print
-  mov bx, data.prompt
+  mov bx, data.monitor_prompt
   call io.print
   jmp .loop
 .show_registers:
@@ -101,8 +99,14 @@ repl:
   pop bx
   ret
 
+
+data.monitor_prompt:        db "? ", 0
+data.monitor_result_prompt: db "=> ", 0
+data.monitor_input:         resb 25 ; characters of user input
+
 data.monitor_start_msg: db "[stage1] Started monitor...", 0
 data.monitor_end_msg:   db "[stage1] Exited monitor.", 0
+
 data.len: db "len: ", 0
 data.reg_ax: db "AX: ", 0
 data.reg_bx: db "BX: ", 0
