@@ -4,15 +4,23 @@
 
 ; Forth is a simple stack-based language.
 ;
-; See
+; References
 ;
 ; - http://beza1e1.tuxen.de/articles/forth.html
 ; - https://github.com/nornagon/jonesforth/blob/master/jonesforth.S
+;
+; - John Metcalf's (http://www.retroprogramming.com/) minimal forth system:
+;   - http://www.retroprogramming.com/2012/03/itsy-forth-1k-tiny-compiler.html
+;   - http://www.retroprogramming.com/2012/04/itsy-forth-dictionary-and-inner.html
+;   - http://www.retroprogramming.com/2012/04/itsy-forth-primitives.html
+;   - http://www.retroprogramming.com/2012/06/itsy-forth-compiler.html
+;   - http://www.retroprogramming.com/2012/09/itsy-documenting-bit-twiddling-voodoo.html
 ;
 forth:
   push bx
   push dx
 
+  ; Startup messages
   mov bx, data.forth_start_msg
   call io.puts
   mov bx, data.newline
@@ -26,14 +34,23 @@ forth:
   mov bx, data.forth_prompt
   call io.print
 
+  ; Main loop.
+  ;
+  ; - get input
+  ; - process each "word" in input
+  ;   - look for that word in the dictionary
+  ;     - if we found it:
+  ;       - ...
+  ;     - otherwise, we
+  ;       - check if it's a number
+  ;       - if not, we error "unknown word"
+  ;
 .loop:
   ; clear the current line's memory (erase old line)
   mov bx, data.forth_input
   mov word [bx], 0
 
-  ; set length to 0
-  mov dx, 0
-
+  ; Read a line of user input
   call io.readline
 
   ; If we entered a blank line, start input over
@@ -44,6 +61,7 @@ forth:
   mov bx, data.newline
   call io.print
 
+  ; TEMP: print out length of input
   mov bx, data.forth_len_msg
   call io.print
   call io.print_hex

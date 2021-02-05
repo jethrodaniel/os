@@ -138,5 +138,4 @@ data.stage1:
 
 %include "asm/forth.asm"
 
-
-; incbin "high-level-lang"
+hi.f: incbin "hi.f"
