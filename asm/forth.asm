@@ -146,6 +146,10 @@ number?:
   mov ax, [bx] ; ax = <this char>
   inc bx       ; bx = <next char>
 
+  ; exit if at end of string
+  cmp ax, 0
+  je .leave
+
   ; subtract 0x30 to get the ASCII digit value
   sub ax, 0x30
 
@@ -163,6 +167,7 @@ number?:
   ; mov bx, data.got_num_msg
   ; call io.puts
 
+  ; jmp .next_character
 .leave
   pop bx
   pop ax
