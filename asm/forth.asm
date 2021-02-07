@@ -2,6 +2,7 @@
 
 [bits 16]
 
+;-----------------
 ; Forth is a simple stack-based language.
 ;
 ; References
@@ -20,7 +21,38 @@
 ; - "And So Forth", by J.L Bezemer (2001)
 ;   - https://thebeez.home.xs4all.nl/ForthPrimer/Forth_primer.html
 ;
-;
+
+; https://raw.githubusercontent.com/phf/itsy-forth/master/msdos/macros.asm
+
+; %define link 0
+; %define immediate 0x080
+
+; %macro head
+;   %%link dw link
+;   %define link %%link
+;   %strlen %%count %1
+;   db %3 + %%count,%1
+;   xt_ %+ %2 dw %4
+; %endmacro
+
+; %macro primitive 2-3 0
+;   head %1,%2,%3,$+2
+; %endmacro
+
+; %macro colon 2-3 0
+;   head %1,%2,%3,docolon
+; %endmacro
+
+; %macro constant 3
+;   head %1,%2,0,doconst
+;   val_ %+ %2 dw %3
+; %endmacro
+
+; %macro variable 3
+;   head %1,%2,0,dovar
+;   val_ %+ %2 dw %3
+; %endmacro
+
 forth:
   push bx
   push dx
@@ -41,15 +73,6 @@ forth:
 
   ; Main loop.
   ;
-  ; - get input
-  ; - process each "word" in input
-  ;   - look for that word in the dictionary
-  ;     - if we found it:
-  ;       - ...
-  ;     - otherwise, we
-  ;       - check if it's a number
-  ;       - if not, we error "unknown word"
-  ;
 .loop:
   ; clear the current line's memory (erase old line)
   mov bx, data.forth_input
@@ -63,23 +86,25 @@ forth:
   cmp al, 0
   je .noinput
 
-  mov bx, data.newline
-  call io.print
-
-  ; TEMP: print out length of input
-  mov bx, data.forth_len_msg
-  call io.print
-  call io.print_hex
+  ; mov bx, data.newline
+  ; call io.print
+  ; ; TEMP: print out length of input
+  ; mov bx, data.forth_len_msg
+  ; call io.print
+  ; call io.print_hex
 
   ; We did get user input, so print the new prompt for results
   mov bx, data.newline
   call io.print
-  mov bx, data.forth_result_prompt
-  call io.print
 
-  ; TODO: more than just echo
+
+  ; Word? Look it up and execute
+  ; Number? push number on stack
+  ; Otherwise, error.
+
   mov bx, data.forth_input
-  call io.print
+  call number?
+  ; call io.print_hex
 
 .noinput:
   mov bx, data.newline
@@ -97,12 +122,58 @@ forth:
 
 
 data.forth_prompt:        db "? ", 0
-data.forth_result_prompt: db "> ", 0
 data.forth_input:         resb 25 ; characters of user input
 
 data.forth_start_msg: db "forth| Started forth...", 0
 data.forth_exit_msg:  db "forth| Exited forth.", 0
 data.forth_help0:     db "Example:", 0
-data.forth_help1:     db "  : hi cr .", 34, 32, "Hello, World!", 34, ";", 0
+data.forth_help1:     db "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", 0
 
 data.forth_len_msg:   db "length: ", 0
+
+
+; Check if a null-terminated string whose address is in `bx` is a
+; number.
+;
+; If so, set `dx` to 1, else set `dx` to 0.
+;
+number?:
+  push ax
+  push bx
+
+  xor dx, dx ; dx = 0
+.next_character:
+  mov ax, [bx] ; ax = <this char>
+  inc bx       ; bx = <next char>
+
+  ; subtract 0x30 to get the ASCII digit value
+  sub ax, 0x30
+
+  push dx
+  mov dx, ax
+  call io.print_hex
+  pop dx
+
+  ; if char > 0x9
+  cmp ax, 0x9
+  jg .error_not_number
+
+  mov dx, 1
+
+  ; mov bx, data.got_num_msg
+  ; call io.puts
+
+.leave
+  pop bx
+  pop ax
+  ret
+.error_not_number:
+  mov bx, data.error_not_number_msg
+  call io.print
+
+  xor dx, dx ; dx = 0
+  jmp .leave
+data.error_not_number_msg:
+  db " is not a number", 0
+
+
