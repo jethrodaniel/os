@@ -17,6 +17,8 @@
 ;   - http://www.retroprogramming.com/2012/09/itsy-documenting-bit-twiddling-voodoo.html
 ;   - https://github.com/phf/itsy-forth/blob/master/msdos/itsy.asm
 ;   - https://github.com/phf/itsy-forth/blob/master/msdos/macros.asm
+; - "And So Forth", by J.L Bezemer (2001)
+;   - https://thebeez.home.xs4all.nl/ForthPrimer/Forth_primer.html
 ;
 ;
 forth:
