@@ -80,6 +80,9 @@ disk_error:
   mov bx, data.newline
   call io.print
 
+  mov bx, data.disk_sectors_err_msg
+  call io.print
+
   ; halt here
   jmp $
 

@@ -9,14 +9,14 @@
 ;
 ; == x86 boot sequence
 ;
-; BIOS begins by doing a few things:
+; BIOS begins like so:
 ;
 ; - run a system check
 ; - dicover peripherials
 ; - discover drives and bootloaders
 ; - relocate one bootloader to 0x7c00 and execute it
 ;
-; That's stage0, below.
+; That bootloader is stage0, below.
 ;
 ;--------------------
 
@@ -56,21 +56,20 @@
 ; Entry-point
 ;
 data.stage0:
-  ; Setup stack.
-  ;
-  ; TODO: make sure I understand this
-  ;
-  ; ;Set stack base to an address far away from 0x7c00 so that we don't
-  ; ;get overwritten by our bootloader.
-  ;
-  ; ;If the stack is empty then sp points to bp.
-  ;
-  mov bp, 0x9000
-  mov sp, bp
-
   ; BIOS stores our boot drive in dl, we take note of this.
   ;
   mov [data.boot_drive], dl
+
+  ; Setup stack.
+  ;
+  ; The stack grows from high addresses to low addresses.
+  ;
+  mov  bp, 0x7c00
+  xor  ax, ax
+  mov  ds, ax
+  mov  es, ax
+  mov  ss, ax
+  mov  sp, bp
 
   mov bx, data.stage0_msg
   call io.puts
@@ -82,7 +81,7 @@ data.stage0:
   call data.stage1
 
   ; We shouldn't get here
-  mov bx, data.end_msg
+  mov bx, data.stage0_end_msg
   call io.print
 
   jmp $
@@ -92,7 +91,7 @@ data.stage0:
 %include "asm/io.asm"
 %include "asm/disk_load.asm"
 
-; Load up more space, then jump to stage 1.
+; Load up more space from disk, then jump to stage 1.
 ;
 ; We load 512 bytes * 5 = 2560 bytes = 2.56Kb
 ;
@@ -105,12 +104,12 @@ load_stage1:
 
 ; Data
 ;
-data.stage0_msg: db "[stage0] BIOS has loaded stage0.", 0
-data.stage1_msg: db "[stage0] Loading stage1...", 0
-data.ok_msg:     db " ok", 0
-data.end_msg:    db "[stage0] Error - returned from stage1."
-data.boot_drive: db 0
-data.newline:    db 10, 13, 0
+data.stage0_msg:     db "stage0| BIOS has loaded stage0.", 0
+data.stage1_msg:     db "stage0| Loading stage1...", 0
+data.stage0_end_msg: db "stage0| Error - returned from stage1."
+data.ok_msg:         db " ok", 0
+data.newline:        db 10, 13, 0
+data.boot_drive:     db 0
 
 ; Required ending.
 ;
