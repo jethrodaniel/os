@@ -90,7 +90,7 @@ forth:
 .done:
   mov bx, data.newline
   call io.print
-  mov bx, data.forth_end_msg
+  mov bx, data.forth_exit_msg
   call io.print
   pop bx
   ret
@@ -100,9 +100,9 @@ data.forth_prompt:        db "? ", 0
 data.forth_result_prompt: db "> ", 0
 data.forth_input:         resb 25 ; characters of user input
 
-data.forth_start_msg: db "[forth] Started forth...", 0
+data.forth_start_msg: db "forth| Started forth...", 0
+data.forth_exit_msg:  db "forth| Exited forth.", 0
 data.forth_help0:     db "Example:", 0
-data.forth_help1:     db "  : hi CR .", 34, "Hello, World!", 34, ";", 0
-data.forth_end_msg:   db "[forth] Exited forth.", 0
+data.forth_help1:     db "  : hi cr .", 34, 32, "Hello, World!", 34, ";", 0
 
 data.forth_len_msg:   db "length: ", 0
