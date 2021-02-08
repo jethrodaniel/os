@@ -21,15 +21,16 @@ nextchar:
   if (c == 0)
     goto done;
 
-  // defensive input sanitization, oof
-  if ((c - '0') > 9) {
-    printf("error: `%c` is not a number\n", c);
+  // subtract 0x30 to convert ASCII digit to integer value
+  c -= '0';
+
+  // check for invalid numbers, print error message, set error flag
+  if (c > 9 || c < 0) {
+    c += '0';
+    printf("error: `%d = %c` is not a number\n", c, c);
     err = 1;
     goto done;
   }
-
-  // subtract 0x30 to convert ASCII digit to integer value
-  c -= '0';
 
   // increase previous digit by a factor of the base
   n = n * 10;
@@ -49,44 +50,11 @@ done:
   return n;
 }
 
-
-// Read an integer, one character at a time.
+// Read a character.
 //
-int readnum(char *str) {
-  printf("reading a number...\n");
-
-  int n;  // Our sum
-  char c; // Current character read
-
-  // Read in a character's ASCII value, add to current sum
-  c = *str++;
-nextchar:
-  // Done if at end of string
-  if (c == 0)
-    goto done;
-
-  printf("->\n");
-
-  if ((c - '0') > 9) {
-    printf("error: %d is not a number\n", c);
-    n = -1;
-    goto done;
-  }
-  printf("c: %d = %c\n", c, c);
-
-  // Subtract 0x30 to get ASCII digits
-  c -= '0';
-
-  n = n * 10 + c;
-
-  printf("n = %d\n", n);
-
-  c = *str++;
-
-  goto nextchar;
-
-done:
-  return n;
+char _getchar() {
+  // BIOS
+  return getchar();
 }
 
 int main()
@@ -95,6 +63,7 @@ int main()
   char *valid    = "143",
        *negative = "-42",
        *err      = "9001error";
+  char input[25];
 
   n = atoi(valid);
   assert(n == 143);
@@ -103,4 +72,9 @@ int main()
   assert(n == -42);
 
   n = atoi(err);
+  printf("n = %d\n", n);
+
+  printf("enter a num: ", n);
+  n = atoi(num);
+  printf("n = %d\n", n);
 }
