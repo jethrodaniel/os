@@ -25,6 +25,7 @@ io.print:
   pop ax
   ret
 
+
 ; Print (with a newline) the null-terminated string whose address is
 ; in `bx`.
 ;
@@ -35,6 +36,7 @@ io.puts:
   call io.print
   pop bx
   ret
+
 
 ; Read (with echo) a \r-terminated string into `bx`, store
 ; length in `dx`.
@@ -65,7 +67,7 @@ io.readline:
   ret
 
 
-; Print a base10 string in hex whose address is in `dx`.
+; Print the value of `dx` as a hex string.
 ;
 io.print_hex:
   push si
@@ -132,68 +134,3 @@ io.print_hex:
   jmp .add_character_hex
 
 data.hex_template: db '0x0000', 0
-
-
-; Convert hexadecimal string into a number, place result in `dx`.
-;
-; Initial string address is in `bx`, length in `dx`.
-;
-io.convert_hex_str_to_num:
-  push ax
-  push bx
-  push cx
-  push si
-
-  mov cx, 0 ; sum
-  mov si, dx ; current char
-.next_char:
-  ; Load the next byte from `bx` into `al`
-  mov al, [bx]
-  ; Move to the next byte, i.e, the next ASCII character
-  inc bx
-
-  ; Finished if we see null byte
-  ; TODO: actually just use the strlen info
-  cmp al, 0
-  je .done
-
-  ; If `al` is `A-F`, then subtract an additional 7
-  cmp al, 0x39
-  jg .minus_7
-.minus_7_ret:
-
-  ; subtract 0x30 to get the numeric value from the ASCII value
-  sub al, 0x30
-
-  ; 0 - 0x30
-  ; 1 - 0x31
-
-  ; zero extend `al`
-  xor ah, ah
-
-  .check_if_add:
-  cmp si, 2
-  je .add_this_digit
-  ; TODO: convert the digit to a power of 16
-  .multiply_again:
-    ; imul al, 16
-    shl al, 4
-    dec si
-    jmp .check_if_add
-  .add_this_digit:
-
-  ; add that value to our sum
-  add cx, ax
-
-  jmp .next_char
-.minus_7:
-  sub al, 0x7
-  jmp .minus_7_ret
-.done:
-  mov dx, cx
-  pop si
-  pop cx
-  pop bx
-  pop ax
-  ret
-data.hex_curr_n: db 0

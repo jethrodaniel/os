@@ -103,8 +103,10 @@ forth:
   ; Otherwise, error.
 
   mov bx, data.forth_input
-  call number?
-  ; call io.print_hex
+  ; call number?
+
+  call io.atoi
+  call io.print_hex
 
 .noinput:
   mov bx, data.newline
@@ -132,53 +134,43 @@ data.forth_help1:     db "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", 0
 data.forth_len_msg:   db "length: ", 0
 
 
-; Check if a null-terminated string whose address is in `bx` is a
-; number.
+; Convert string in `bx` into an integer in `dx`.
 ;
-; If so, set `dx` to 1, else set `dx` to 0.
-;
-number?:
+io.atoi:
   push ax
   push bx
 
   xor dx, dx ; dx = 0
 .next_character:
-  mov ax, [bx] ; ax = <this char>
+  xor ah, ah
+  mov al, [bx] ; ax = <this char>
   inc bx       ; bx = <next char>
 
   ; exit if at end of string
-  cmp ax, 0
+  cmp al, 0
   je .leave
 
   ; subtract 0x30 to get the ASCII digit value
-  sub ax, 0x30
+  sub al, '0'
 
-  push dx
-  mov dx, ax
-  call io.print_hex
-  pop dx
+  ; increase previous digit by a factor of the base
+  imul dx, 10
 
-  ; if char > 0x9
-  cmp ax, 0x9
-  jg .error_not_number
+  ;add this digit
+  add dx, ax
 
-  mov dx, 1
+  ; jg .error_not_number
 
-  ; mov bx, data.got_num_msg
-  ; call io.puts
-
-  ; jmp .next_character
-.leave
+  ; get next character (may be '0' if end of input)
+  jmp .next_character
+.leave:
   pop bx
   pop ax
   ret
 .error_not_number:
   mov bx, data.error_not_number_msg
   call io.print
-
   xor dx, dx ; dx = 0
   jmp .leave
 data.error_not_number_msg:
   db " is not a number", 0
-
-
