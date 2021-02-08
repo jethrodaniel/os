@@ -81,6 +81,7 @@
 ;
 ;
 ;
+
 forth:
   push bx
   push dx
@@ -88,14 +89,6 @@ forth:
   ; Startup messages
   mov bx, data.forth_start_msg
   call io.puts
-  mov bx, data.newline
-  call io.print
-  mov bx, data.forth_help0
-  call io.puts
-  mov bx, data.forth_help1
-  call io.puts
-  mov bx, data.newline
-  call io.print
   mov bx, data.forth_prompt
   call io.print
 
@@ -157,8 +150,10 @@ forth:
 data.forth_prompt:        db "? ", 0
 data.forth_input:         resb 25 ; characters of user input
 
-data.forth_start_msg: db "forth| Started forth...", 0
-data.forth_help0:     db "Example:", 0
-data.forth_help1:     db "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", 0
-
+data.forth_start_msg:
+  db "forth| Started forth...", \
+  13, 10, \
+  13, 10, "Example:", \
+  13, 10, "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", \
+  13, 10, 0
 data.hex_result_msg:  db "hex: ", 0
