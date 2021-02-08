@@ -53,6 +53,34 @@
 ;   val_ %+ %2 dw %3
 ; %endmacro
 
+
+; https://web.archive.org/web/20060201232627/http://dec.bournemouth.ac.uk/forth/forth.html
+; http://www.bradrodriguez.com/papers/tcjassem.txt
+
+
+; ```
+; : hi cr ." Hi!" ;
+; ```
+;
+; ```
+; `:` - word defined as the address of the address interpreter
+;
+; +-------------------------------------------------------------+
+; | link | 2 | hi | (:) | open | trxt | . | echo | close | exit |
+; +-------------------------------------------------------------+
+;   |      |  |     |
+;   |      + name length  |-------------- body -----------------|
+;   |         |     |
+;   |         + name
+;   |               |
+;   + prev link     | code field address
+;                   + (CFA)
+;
+; |------  head ----------|
+; ```
+;
+;
+;
 forth:
   push bx
   push dx
@@ -72,6 +100,20 @@ forth:
   call io.print
 
   ; Main loop.
+  ;
+  ; ```forth
+  ;
+  ; \ The forth keyboard interpreter, `quit` is started when
+  ; \ forth boots.
+  ; \
+  ; : quit ( -- )
+  ;   begin
+  ;     reset     \ clear the stacks
+  ;     query     \ wait for user input, or read input from disk
+  ;     interpret \ find dictionary match, execute
+  ;   again       \ loop
+  ; ;
+  ; ```
   ;
 .loop:
   ; clear the current line's memory (erase old line)
