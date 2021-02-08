@@ -91,12 +91,13 @@ forth:
   mov bx, data.newline
   call io.print
 
+  ; hex: ...
+  mov bx, data.hex_result_msg
+  call io.print
+
   ; Word? Look it up and execute
   ; Number? push number on stack
   ; Otherwise, error.
-
-  mov bx, data.hex_result_msg
-  call io.print
 
   mov bx, data.forth_input
   ; call number?
@@ -110,21 +111,11 @@ forth:
   mov bx, data.forth_prompt
   call io.print
   jmp .loop
-.done:
-  mov bx, data.newline
-  call io.print
-  mov bx, data.forth_exit_msg
-  call io.print
-  pop dx
-  pop bx
-  ret
-
 
 data.forth_prompt:        db "? ", 0
 data.forth_input:         resb 25 ; characters of user input
 
 data.forth_start_msg: db "forth| Started forth...", 0
-data.forth_exit_msg:  db "forth| Exited forth.", 0
 data.forth_help0:     db "Example:", 0
 data.forth_help1:     db "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", 0
 

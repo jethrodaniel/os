@@ -134,6 +134,7 @@ data.stage1:
   call io.puts
 
   call forth
+  jmp $
 
 %include "asm/forth.asm"
 
