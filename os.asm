@@ -137,5 +137,3 @@ data.stage1:
   jmp $
 
 %include "asm/forth.asm"
-
-hi.f: incbin "hi.f"
