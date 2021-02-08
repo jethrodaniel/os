@@ -76,7 +76,8 @@ forth:
 .loop:
   ; clear the current line's memory (erase old line)
   mov bx, data.forth_input
-  mov word [bx], 0
+  ; todo: seperate subroutine to zero out a string
+  mov dword [bx], 0 ; zero out first 4 bytes
 
   ; Read a line of user input
   call io.readline
@@ -86,13 +87,6 @@ forth:
   cmp al, 0
   je .noinput
 
-  ; mov bx, data.newline
-  ; call io.print
-  ; ; TEMP: print out length of input
-  ; mov bx, data.forth_len_msg
-  ; call io.print
-  ; call io.print_hex
-
   ; We did get user input, so print the new prompt for results
   mov bx, data.newline
   call io.print
@@ -101,23 +95,14 @@ forth:
   ; Number? push number on stack
   ; Otherwise, error.
 
+  mov bx, data.hex_result_msg
+  call io.print
+
   mov bx, data.forth_input
   ; call number?
 
-  ; BUG:
-  ;   works for 0-9, but when you enter a larger digit, something's
-  ;   getting borked.
-  ;
-  ;   0 -> 0
-  ;   9 -> 9
-  ;   10 -> A
-  ;   123 -> 7b
-  ;   10 -> 67 ? what?
-  ;
   call io.atoi
-
   call io.print_hex
-  mov bx, data.hex_template
 
 .noinput:
   mov bx, data.newline
@@ -130,6 +115,7 @@ forth:
   call io.print
   mov bx, data.forth_exit_msg
   call io.print
+  pop dx
   pop bx
   ret
 
@@ -142,46 +128,4 @@ data.forth_exit_msg:  db "forth| Exited forth.", 0
 data.forth_help0:     db "Example:", 0
 data.forth_help1:     db "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", 0
 
-data.forth_len_msg:   db "length: ", 0
-
-
-; Convert string in `bx` into an integer in `dx`.
-;
-io.atoi:
-  push ax
-  push bx
-
-  xor dx, dx ; dx = 0
-.next_character:
-  xor ah, ah
-  mov al, [bx] ; ax = <this char>
-  inc bx       ; bx = <next char>
-
-  ; exit if at end of string
-  cmp al, 0
-  je .leave
-
-  ; subtract 0x30 to get the ASCII digit value
-  sub al, '0'
-
-  ; increase previous digit by a factor of the base
-  imul dx, dx, 10
-
-  ;add this digit
-  add dx, ax
-
-  ; jg .error_not_number
-
-  ; get next character (may be '0' if end of input)
-  jmp .next_character
-.leave:
-  pop bx
-  pop ax
-  ret
-.error_not_number:
-  mov bx, data.error_not_number_msg
-  call io.print
-  xor dx, dx ; dx = 0
-  jmp .leave
-data.error_not_number_msg:
-  db " is not a number", 0
+data.hex_result_msg:  db "hex: ", 0

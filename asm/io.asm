@@ -134,3 +134,46 @@ io.print_hex:
   jmp .add_character_hex
 
 data.hex_template: db '0x0000', 0
+
+
+
+; Convert string in `bx` into an integer in `dx`.
+;
+io.atoi:
+  push ax
+  push bx
+
+  xor dx, dx ; dx = 0
+.next_character:
+  xor ah, ah
+  mov al, [bx] ; ax = <this char>
+  inc bx       ; bx = <next char>
+
+  ; exit if at end of string
+  cmp al, 0
+  je .leave
+
+  ; subtract 0x30 to get the ASCII digit value
+  sub al, '0'
+
+  ; increase previous digit by a factor of the base
+  imul dx, dx, 10
+
+  ; add this digit
+  add dx, ax
+
+  ; jg .error_not_number
+
+  ; get next character (may be '0' if end of input)
+  jmp .next_character
+.leave:
+  pop bx
+  pop ax
+  ret
+.error_not_number:
+  mov bx, data.error_not_number_msg
+  call io.print
+  xor dx, dx ; dx = 0
+  jmp .leave
+data.error_not_number_msg:
+  db " is not a number", 0
