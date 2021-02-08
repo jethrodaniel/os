@@ -97,7 +97,6 @@ forth:
   mov bx, data.newline
   call io.print
 
-
   ; Word? Look it up and execute
   ; Number? push number on stack
   ; Otherwise, error.
@@ -105,8 +104,20 @@ forth:
   mov bx, data.forth_input
   ; call number?
 
+  ; BUG:
+  ;   works for 0-9, but when you enter a larger digit, something's
+  ;   getting borked.
+  ;
+  ;   0 -> 0
+  ;   9 -> 9
+  ;   10 -> A
+  ;   123 -> 7b
+  ;   10 -> 67 ? what?
+  ;
   call io.atoi
+
   call io.print_hex
+  mov bx, data.hex_template
 
 .noinput:
   mov bx, data.newline
@@ -154,7 +165,7 @@ io.atoi:
   sub al, '0'
 
   ; increase previous digit by a factor of the base
-  imul dx, 10
+  imul dx, dx, 10
 
   ;add this digit
   add dx, ax
