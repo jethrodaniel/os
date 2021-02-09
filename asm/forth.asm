@@ -18,6 +18,9 @@
 ; located in address `bx`.
 ;
 forth_exec:
+  push bx
+  push dx
+
   ; debug: hex: ...
   ; mov bx, data.hex_result_msg
   ; call io.print
@@ -28,10 +31,14 @@ forth_exec:
   call io.atoi
   call io.print_hex
 
+  pop dx
+  pop bx
   ret
 
 
 ; Enter a forth read-eval-print loop.
+;
+; Uses it's own input buffer.
 ;
 forth_repl:
   push bx
@@ -68,6 +75,7 @@ forth_repl:
   mov bx, data.forth_prompt
   call io.print
   jmp .loop
+
 
 data.forth_prompt:    db "? ", 0
 data.forth_input:     resb 25 ; characters of user input
