@@ -12,8 +12,28 @@
 ; - [And So Forth](https://thebeez.home.xs4all.nl/ForthPrimer/Forth_primer.html)
 ; - [Forth: An underview](https://web.archive.org/web/20060201232627/http://dec.bournemouth.ac.uk/forth/forth.html)
 ; - [Build Your Own (Cross-) Assembler....in Forth](http://www.bradrodriguez.com/papers/tcjassem.txt)
+;----------------
+
+; Execute a forth program whose null-terminated string is
+; located in address `bx`.
 ;
-forth:
+forth_exec:
+  ; debug: hex: ...
+  ; mov bx, data.hex_result_msg
+  ; call io.print
+  ; pop bx
+  ; push bx
+
+  ; for now, just print hex value of string, assuming its a number
+  call io.atoi
+  call io.print_hex
+
+  ret
+
+
+; Enter a forth read-eval-print loop.
+;
+forth_repl:
   push bx
   push dx
 
@@ -22,14 +42,6 @@ forth:
   mov bx, data.forth_prompt
   call io.print
 
-  ; Main loop:
-  ;
-  ; 1. Get next word, i.e, read a token until a space or end of input (\0)
-  ; 2. Lookup word in dictionary
-  ;   - If we found a match, execute the word
-  ;   - If we didn't find a match, attempt to parse as a number
-  ;   - Otherwise, complain about a missing word
-  ;
 .loop:
   ; clear the current line's memory (erase old line)
   mov bx, data.forth_input
@@ -38,38 +50,17 @@ forth:
 
   ; Read a line of user input
   call io.readline
-  ; mov bx, data.test
-  ; call io.print
 
   ; If we entered a blank line, start input over
   mov al, [data.forth_input]
-  ; mov al, [data.test]
   cmp al, 0
   je .noinput
 
-  ; We did get user input, so print the new prompt for results
   mov bx, data.newline
   call io.print
 
-  ; hex: ...
-  mov bx, data.hex_result_msg
-  call io.print
-
-  ; Word? Look it up and execute
-  ; Number? push number on stack
-  ; Otherwise, error.
-
   mov bx, data.forth_input
-  ; mov bx, data.test
-  ; call number?
-
-  call io.atoi
-  call io.print_hex
-
-  mov bx, data.newline
-  call io.print
-  mov bx, data.forth_input
-  call io.print
+  call forth_exec
 
 .noinput:
   mov bx, data.newline
@@ -78,15 +69,14 @@ forth:
   call io.print
   jmp .loop
 
-data.forth_prompt:        db "? ", 0
-data.forth_input:         resb 25 ; characters of user input
-
+data.forth_prompt:    db "? ", 0
+data.forth_input:     resb 25 ; characters of user input
 data.forth_start_msg:
   db "forth| Started forth...", \
   13, 10, \
   13, 10, "Example:", \
   13, 10, "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", \
   13, 10, 0
+
+; tmp
 data.hex_result_msg:  db "hex: ", 0
-; data.test: db "10", 0
-data.test: incbin "hi.fs"

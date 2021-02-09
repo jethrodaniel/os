@@ -1,2 +1,1 @@
-: hi CR ."Hello, World!"
-if true print "hi" else
+: hi cr ."hi!"

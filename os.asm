@@ -80,10 +80,8 @@ data.stage0:
   call load_stage1
   call data.stage1
 
-  ; We shouldn't get here
   mov bx, data.stage0_end_msg
   call io.print
-
   jmp $
 
 ; Helpers
@@ -106,7 +104,7 @@ load_stage1:
 ;
 data.stage0_msg:     db "stage0| BIOS has loaded stage0.", 0
 data.stage1_msg:     db "stage0| Loading stage1...", 0
-data.stage0_end_msg: db "stage0| Error - returned from stage1."
+data.stage0_end_msg: db 10, 13, "stage0| Error - returned from stage1."
 data.ok_msg:         db " ok", 0
 data.newline:        db 10, 13, 0
 data.boot_drive:     db 0
@@ -133,7 +131,16 @@ data.stage1:
   mov bx, data.ok_msg
   call io.puts
 
-  call forth
+  call forth_repl
+
+  mov bx, data.forth_example
+  call forth_exec
+
+  mov bx, data.stage1_end_msg
+  call io.print
   jmp $
 
 %include "asm/forth.asm"
+
+data.stage1_end_msg: db 10, 13, "stage1| Error - returned from forth", 0
+data.forth_example:  incbin "hi.fs"
