@@ -14,26 +14,92 @@
 ; - [Build Your Own (Cross-) Assembler....in Forth](http://www.bradrodriguez.com/papers/tcjassem.txt)
 ;----------------
 
+%macro if_equal_jmp 3
+  cmp %1, %2
+  je %3
+%endmacro
+
+; Execute a WORD whose null-terminated name string is located in
+; address `bx`, and whose length is in `dx`.
+;
+forth_exec_word:
+  push bx
+  call io.puts
+  pop bx
+  ret
+
 ; Execute a forth program whose null-terminated string is
 ; located in address `bx`.
 ;
+; The string is split by whitespace into words, each of which is executed
+; by `forth_exec_word`.
+;
 forth_exec:
   push bx
-  push dx
+  push cx ; start of current word
+  push dx ; word length
 
-  ; debug: hex: ...
-  ; mov bx, data.hex_result_msg
-  ; call io.print
-  ; pop bx
-  ; push bx
+.next_word:
+  mov cx, bx ; cx = string start address
+  xor dx, dx ; dx = 0
+.next_char:
+  mov al, [bx] ; ax = <this char>
 
-  ; for now, just print hex value of string, assuming its a number
-  call io.atoi
-  call io.print_hex
+  ; exit if at end of string
+  if_equal_jmp al, 0, .leave ; \0
+
+  if_equal_jmp al, 9,  .endword ; \t
+  if_equal_jmp al, 10, .endword ; \n
+  if_equal_jmp al, 13, .endword ; \r
+  if_equal_jmp al, 32, .endword ; space
+
+  inc bx       ; bx = <next char>
+  inc dx       ; dx += 1
+  jmp .next_char
+
+.endword:
+  mov byte [bx], 0 ; replace whitespace with null byte
+
+  ; print word, then a newline
+  push bx
+  mov bx, cx
+  call forth_exec_word
+  pop bx
+  inc bx
+
+  jmp .next_word
+
+.skip_whitespace:
+   ; mov cx, bx
+   ; mov al, [bx] ; ax = <this char>
+
+  ; ; exit if at end of string
+  ; cmp al, 0
+  ; je .leave
+
+  ; cmp al, 9 ; \t
+  ; je .skip_whitespace
+  ; cmp al, 10 ; \n
+  ; je .skip_whitespace
+  ; cmp al, 13 ; \r
+  ; je .skip_whitespace
+  ; cmp al, 32 ; space
+  ; je .skip_whitespace
+
+  ; jmp .next_word
+  ; jmp .next_char
+
+.leave:
+  mov bx, data.leaveword
+  call io.puts
 
   pop dx
   pop bx
+  pop cx
   ret
+
+data.endword: db "endword", 0
+data.leaveword: db "leaveword", 0
 
 
 ; Enter a forth read-eval-print loop.
@@ -60,8 +126,7 @@ forth_repl:
 
   ; If we entered a blank line, start input over
   mov al, [data.forth_input]
-  cmp al, 0
-  je .noinput
+  if_equal_jmp al, 0, .noinput ; \0
 
   mov bx, data.newline
   call io.print

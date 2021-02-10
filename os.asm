@@ -131,7 +131,7 @@ data.stage1:
   mov bx, data.ok_msg
   call io.puts
 
-  call forth_repl
+  ; call forth_repl
 
   mov bx, data.forth_example
   call forth_exec
