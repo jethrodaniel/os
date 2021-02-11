@@ -123,9 +123,11 @@ forth_repl:
   mov bx, data.forth_input
   call forth_exec
 
+  jmp .continue
 .noinput:
   mov bx, data.newline
   call io.print
+.continue:
   mov bx, data.forth_prompt
   call io.print
   jmp .loop
