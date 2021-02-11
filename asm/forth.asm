@@ -89,9 +89,6 @@ forth_exec:
   pop cx
   ret
 
-data.endword: db "endword", 0
-data.leaveword: db "leaveword", 0
-
 
 ; Enter a forth read-eval-print loop.
 ;
