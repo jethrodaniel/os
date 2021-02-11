@@ -4,6 +4,7 @@ USB  := /dev/sdb
 default: run
 
 run: boot.bin
+	$(MAKE) -C reference
 	$(QEMU) -drive file=$<,index=0,if=floppy,format=raw
 	# $(QEMU) -hda /dev/sdb
 	# $(QEMU) -cdrom /dev/sdb
