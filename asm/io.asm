@@ -47,13 +47,6 @@ io.readline:
 .loop:
   bios.read_char_into_al
 
-  ; if \r
-  cmp al, 13
-  je .done
-
-  ; echo
-  bios.print_char_in_al
-
   ; get next char, advance
   mov [bx], al
   inc bx
@@ -61,7 +54,12 @@ io.readline:
   ; increment length
   inc dx
 
-  jmp .loop
+  ; echo input
+  bios.print_char_in_al
+
+  ; if \r
+  cmp al, 13
+  jne .loop
 .done:
   pop ax
   ret
