@@ -1,1 +1,4 @@
-: hi ." hi!" ;
+: hi
+  ."
+    hello, there."
+;

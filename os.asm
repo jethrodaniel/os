@@ -142,5 +142,5 @@ data.stage1:
 
 %include "asm/forth.asm"
 
-data.stage1_end_msg: db 10, 13, "stage1| Error - returned from forth", 0
+data.stage1_end_msg: db "stage1| Error - returned from forth", 0
 data.forth_example:  incbin "hi.fs"

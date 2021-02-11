@@ -65,34 +65,23 @@ forth_exec:
   mov bx, cx
   call forth_exec_word
   pop bx
-  inc bx
+
+.skip_whitespace:
+   inc bx       ; bx = <next char>
+   mov al, [bx] ; ax = <this char>
+   mov cx, bx   ; update start of word match
+
+  ; exit if at end of string
+  if_equal_jmp al, 0, .leave ; \0
+
+  if_equal_jmp al, 9,  .skip_whitespace ; \t
+  if_equal_jmp al, 10, .skip_whitespace ; \n
+  if_equal_jmp al, 13, .skip_whitespace ; \r
+  if_equal_jmp al, 32, .skip_whitespace ; space
 
   jmp .next_word
 
-.skip_whitespace:
-   ; mov cx, bx
-   ; mov al, [bx] ; ax = <this char>
-
-  ; ; exit if at end of string
-  ; cmp al, 0
-  ; je .leave
-
-  ; cmp al, 9 ; \t
-  ; je .skip_whitespace
-  ; cmp al, 10 ; \n
-  ; je .skip_whitespace
-  ; cmp al, 13 ; \r
-  ; je .skip_whitespace
-  ; cmp al, 32 ; space
-  ; je .skip_whitespace
-
-  ; jmp .next_word
-  ; jmp .next_char
-
 .leave:
-  mov bx, data.leaveword
-  call io.puts
-
   pop dx
   pop bx
   pop cx
