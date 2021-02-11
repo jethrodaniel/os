@@ -31,8 +31,10 @@ forth_exec_word:
 ; Execute a forth program whose null-terminated string is
 ; located in address `bx`.
 ;
-; The string is split by whitespace into words, each of which is executed
-; by `forth_exec_word`.
+; The string is split by whitespace into words, each of which is
+; executed by `forth_exec_word`, as it's split.
+;
+; TODO: handle issue with leading whitespace before first word
 ;
 forth_exec:
   push bx
