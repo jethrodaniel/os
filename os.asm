@@ -12,7 +12,7 @@
 ; BIOS begins like so:
 ;
 ; - run a system check
-; - dicover peripherials
+; - discover peripherials
 ; - discover drives and bootloaders
 ; - relocate one bootloader to 0x7c00 and execute it
 ;
@@ -44,15 +44,17 @@
 ;
 [bits 16]
 
+
 ; Add a global offset, so we don't have to add 0x7c00 to all
 ; the addresses.
 ;
 [org 0x7c00]
 
+
 ; Entry-point
 ;
 data.stage0:
-  ; BIOS stores our boot drive in dl, we take note of this.
+  ; BIOS stores our boot drive in dl; take note of this.
   ;
   mov [data.boot_drive], dl
 
@@ -78,13 +80,15 @@ data.stage0:
 
   mov bx, data.stage0_end_msg
   call io.print
-  jmp $
+  jmp $ ; halt
+
 
 ; Helpers
 ;
 %include "asm/io.asm"
 %include "asm/atoi.asm"
 %include "asm/disk_load.asm"
+
 
 ; Load up more space from disk, then jump to stage 1.
 ;
@@ -97,6 +101,7 @@ load_stage1:
   call disk_load
   ret
 
+
 ; Data
 ;
 data.stage0_msg:     db "stage0| BIOS has loaded stage0.", 0
@@ -106,7 +111,8 @@ data.ok_msg:         db " ok", 0
 data.newline:        db 10, 13, 0
 data.boot_drive:     db 0
 
-; Required ending.
+
+; Required ending of stage0.
 ;
 ; The bootloader must by 512 bytes, with 0x55aa as the last 2 bytes.
 ;
@@ -124,6 +130,7 @@ dw 0xaa55             ; Tack the magic 2-byte constant at the end
 ;
 ;-------------------------------------------------
 
+
 data.stage1:
   mov bx, data.ok_msg
   call io.puts
@@ -137,7 +144,9 @@ data.stage1:
   call io.print
   jmp $
 
+
 %include "asm/forth.asm"
+
 
 data.stage1_end_msg: db "stage1| Error - returned from forth", 0
 data.forth_example:  incbin "hi.fs"
