@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 // Globlals.
 //
 char newline[] = "\n";
+char hex_table[] = "0123456789ABCDEF";
 
 // Print the null-terminated string `str`.
 //
@@ -37,6 +39,32 @@ char *io_readline(char *str) {
   return str;
 }
 
+int io_print_hex(int n) {
+  char *stack = malloc(25 * sizeof(char)),
+       c;
+  int i, digit;
+
+  do {
+    digit = n % 16;
+    n /= 16;
+
+    // push
+    *stack++ = hex_table[digit];
+    i++;
+  } while (n > 0);
+  stack--;
+
+  putchar('0');
+  putchar('x');
+
+  while (i >= 0) {
+    // pop
+    c = *stack--;
+    i--;
+    putchar(c);
+  }
+}
+
 
 // Demo
 //
@@ -51,9 +79,21 @@ int main() {
   printf("io_puts: ");
   io_puts(str);
 
+  printf("io_print_hex:");
+  printf("\n");
+  io_print_hex(291);
+  printf("\n");
+  io_print_hex(4660);
+  printf("\n");
+  io_print_hex(74565);
+  printf("\n");
+  io_print_hex(1193046);
+  printf("\n");
+
   printf("io_readline: ");
   io_readline(input);
-
   printf("io_puts: ");
   io_puts(input);
+
+  return 0;
 }
