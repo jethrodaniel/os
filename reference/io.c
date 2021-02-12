@@ -4,7 +4,6 @@
 // Globlals.
 //
 char newline[] = "\n";
-char hex_table[] = "0123456789ABCDEF";
 
 // Print the null-terminated string `str`.
 //
@@ -48,8 +47,14 @@ int io_print_hex(int n) {
     digit = n % 16;
     n /= 16;
 
+    // convert to ascii
+    if (digit > 9)
+      digit += 0x37;
+    else
+      digit += 0x30;
+
     // push
-    *stack++ = hex_table[digit];
+    *stack++ = digit;
     i++;
   } while (n > 0);
   stack--;
@@ -88,6 +93,8 @@ int main() {
   io_print_hex(74565);
   printf("\n");
   io_print_hex(1193046);
+  printf("\n");
+  io_print_hex(48879);
   printf("\n");
 
   printf("io_readline: ");
