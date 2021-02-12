@@ -5,6 +5,7 @@
 //
 char newline[] = "\n";
 
+
 // Print the null-terminated string `str`.
 //
 int io_print(char *str) {
@@ -48,10 +49,9 @@ int io_print_hex(int n) {
     n /= 16;
 
     // convert to ascii
-    if (digit > 9)
-      digit += 0x37;
-    else
-      digit += 0x30;
+    digit += '0';
+    if (digit > '9')
+      digit += 7;
 
     // push
     *stack++ = digit;
