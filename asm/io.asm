@@ -2,63 +2,76 @@
 
 [bits 16]
 
+
+; BIOS call to read an ASCII character into `al`, without echo.
+;
+%macro bios.read_char_into_al 0
+  mov ah, 00h
+  int 16h
+%endmacro
+
+
+; BIOS call to print the ASCII character in `al`.
+;
+%macro bios.print_char_in_al 0
+  mov ah, 0eh
+  int 0x10
+%endmacro
+
+
+; Print a newline, then a carriage return.
+;
+%macro bios.print_newline 0
+  push ax
+  mov al, 10 ; \n
+  bios.print_char_in_al
+  mov al, 13 ; \r
+  bios.print_char_in_al
+  pop ax
+%endmacro
+
+
 ; Print the null-terminated string whose address is in `bx`.
 ;
 io.print:
   push ax
 .print_char:
-  ; Load the next byte from `bx` into `al` for printing
-  mov al, [bx]
+  mov al, [bx] ; load character
+  inc bx       ; move to next character
 
-  ; Move to the next byte, i.e, the next ASCII character
-  inc bx
-
-  ; Done when we find the null terminator
-  cmp al, 0
+  cmp al, 0    ; exit if at end of string
   je .done
 
   bios.print_char_in_al
 
-  ; Repeat with the next byte
-  jmp .print_char
+  jmp .print_char ; print next character
 .done:
   pop ax
   ret
 
 
-; Print (with a newline) the null-terminated string whose address is
-; in `bx`.
+; Print the null-terminated string whose address is in `bx`, then
+; a newline.
 ;
 io.puts:
   call io.print
-  push bx
-  mov bx, data.newline
-  call io.print
-  pop bx
+  bios.print_newline
   ret
 
 
-; Read (with echo) a \r-terminated string into `bx`, store
-; length in `dx`.
+; Read a \r-terminated string into `bx`, echo as typed.
 ;
 io.readline:
   push ax
-  mov dx, 0
 .loop:
   bios.read_char_into_al
 
-  ; get next char, advance
-  mov [bx], al
-  inc bx
+  mov [bx], al ; load next character
+  inc bx       ; move to next character
 
-  ; increment length
-  inc dx
-
-  ; echo input
   bios.print_char_in_al
 
-  ; if \r
-  cmp al, 13
+  cmp al, 13  ; exit if \r
   jne .loop
 .done:
   pop ax
