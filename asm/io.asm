@@ -130,43 +130,26 @@ io.print_hex:
   jmp .after_add_0x7
 
 
-; Convert string in `bx` into an integer in `dx`.
+; Convert decimal string in `bx` into an integer in `dx`.
 ;
 io.atoi:
   push ax
   push bx
 
   xor dx, dx ; dx = 0
-.next_character:
-  xor ah, ah
-  mov al, [bx] ; ax = <this char>
-  inc bx       ; bx = <next char>
+.next_char:
+  mov al, [bx] ; load character
+  inc bx       ; move to next character
 
-  ; exit if at end of string
-  cmp al, 0
-  je .leave
+  cmp al, 0 ; exit if at end of string
+  je .return
 
-  ; subtract 0x30 to get the ASCII digit value
-  sub al, '0'
+  sub al, '0' ; convert ASCII to digit value
 
-  ; increase previous digit by a factor of the base
-  imul dx, dx, 10
-
-  ; add this digit
-  add dx, ax
-
-  ; jg .error_not_number
-
-  ; get next character (may be '0' if end of input)
-  jmp .next_character
-.leave:
+  imul dx, dx, 10 ; increase prev digit by factor of the base
+  add dx, ax      ; add this digit
+  jmp .next_char  ; get next character ('0' if end of input)
+.return:
   pop bx
   pop ax
   ret
-.error_not_number:
-  mov bx, data.error_not_number_msg
-  call io.print
-  xor dx, dx ; dx = 0
-  jmp .leave
-data.error_not_number_msg:
-  db " is not a number", 0

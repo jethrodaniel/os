@@ -14,32 +14,20 @@ int atoi(char *str) {
     neg = 1;    // flag as negative
   }
 
-nextchar:
-  // finish if we're at the end of the string
-  if (c == 0)
-    goto done;
+  while (c) {
+    c -= '0'; // convert ASCII to digit value
 
-  // subtract 0x30 to convert ASCII digit to integer value
-  c -= '0';
+    // check for invalid numbers, print error message
+    if (c > 9 || c < 0) {
+      c += '0';
+      printf("error: `%d = %c` is not a number\n", c, c);
+      return;
+    }
 
-  // check for invalid numbers, print error message
-  if (c > 9 || c < 0) {
-    c += '0';
-    printf("error: `%d = %c` is not a number\n", c, c);
-    goto done;
+    n *= 10; // increase prev digit by factor of the base
+    n += c;  // add this digit
+    c = *str++; // get next char ('0' if end of input)
   }
-
-  // increase previous digit by a factor of the base
-  n = n * 10;
-
-  // add this digit
-  n = n + c;
-
-  // get next character (may be '0' if end of input)
-  c = *str++;
-
-  goto nextchar;
-done:
   // neg n
   if (neg)
     n = -1 * n;
