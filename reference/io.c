@@ -59,7 +59,7 @@ int io_print_hex(int n) {
     digit = n % 16;
     n /= 16;
 
-    // convert to ascii
+    // convert to ASCII
     digit += '0';
     if (digit > '9')
       digit += 7;
@@ -108,10 +108,10 @@ int main() {
   io_print_hex(48879);
   printf("\n");
 
-  printf("io_readline: ");
-  io_readline(input);
-  printf("io_puts: ");
-  io_puts(input);
+  // printf("io_readline: ");
+  // io_readline(input);
+  // printf("io_puts: ");
+  // io_puts(input);
 
   return 0;
 }

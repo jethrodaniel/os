@@ -24,8 +24,17 @@
 ;
 forth_exec_word:
   push bx
-  call io.puts
+  push dx
+
+  ; call io.puts
+  call io.atoi
+
+  call io.print_hex
+  bios.print_newline
+
+  pop dx
   pop bx
+
   ret
 
 ; Execute a forth program whose null-terminated string is

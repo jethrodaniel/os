@@ -78,74 +78,56 @@ io.readline:
   ret
 
 
-; Print the value of `dx` as a hex string.
+; Print the value of `dx` as a hexadecimal string.
 ;
 io.print_hex:
-  push si
-  push bx
-  push cx
+  push ax ; current digit
+  push bx ; current sum
+  push cx ; digit/character count
 
-  ; use si to keep track of the current char in our template string
-  mov si, data.hex_template + 2
+  mov bx, dx ; sum is initially our `dx` value
+  xor cx, cx ; count = 0
 
-  ; count how many nibbles we've processed, stop at 4
-  mov cx, 0
+.loop:
+  mov ax, bx ; digit = sum % 16
+  and ax, 0xf
+  shr bx, 4  ; sum /= 16;
 
-.next_character:
-  ; increment the counter for each nibble
+  add al, '0' ; convert to ASCII
+  cmp al, '9' ; convert 9+ into A-F
+  jg .add_0x7
+.after_add_0x7:
+
+  push ax ; push character
   inc cx
 
-  ; isolate this nibble
-  mov bx, dx
-  and bx, 0xf000
-  shr bx, 4
-
-  ; add 0x30 to get the ASCII digit value
-  add bh, 0x30
-
-  ; If our hex digit was > 9, it'll be > 0x39, so add 7 to get
-  ; ASCII letters
-  cmp bh, 0x39
-  jg .add_7
-
-.add_character_hex:
-  ; put the current nibble into our string template
-  mov [si], bh
-
-  ; increment our template string's char position
-  inc si
-
-  ; shift dx by 4 to start on the next nibble (to the right)
-  shl dx, 4
-
-  ; exit if we've processed all 4 nibbles, else process the next
-  ; nibble
-  cmp cx, 4
-  jnz .next_character
-  jmp .done
+  cmp bx, 0 ; if on the last digit
+  jg .loop
 
 .done:
-  ; copy the current nibble's ASCII value to a char in our template
-  ; string
-  mov bx, data.hex_template
+  mov al, '0'
+  bios.print_char_in_al
+  mov al, 'x'
+  bios.print_char_in_al
 
-  ; print our template string
-  call io.print
+.pop_char:
+  cmp cx, 0 ; if we've printed all the digits
+  je .return
 
+  pop ax ; print next digit
+  dec cx
+  bios.print_char_in_al
+
+  jmp .pop_char
+
+.return:
   pop cx
   pop bx
-  pop si
+  pop ax
   ret
-
-.add_7:
-  ; add 7 to our current nibble's ASCII value, in order to get letters
-  add bh, 0x7
-
-  ; add the current nibble's ASCII
-  jmp .add_character_hex
-
-data.hex_template: db '0x0000', 0
-
+.add_0x7:
+  add al, 0x7
+  jmp .after_add_0x7
 
 
 ; Convert string in `bx` into an integer in `dx`.
