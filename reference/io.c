@@ -31,10 +31,8 @@ int io_puts(char *str) {
 char *io_readline(char *str) {
   char c;
 
-  while (c = getchar(), c != '\n') {
-    // putchar(c);
+  while (c = getchar(), c != '\n')
     *str++ = c;
-  }
 
   return str;
 }
