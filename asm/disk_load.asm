@@ -2,89 +2,53 @@
 
 [bits 16]
 
-; subroutine to read from a disk into memory
-;
-; reads a specified number of sectors from drive dl, grabs cylinder 0,
-; head 0, and start reading the second sector (after the bootloader)
-;
-; Requires:
-;
-;   io.print
-;   data.newline
 
-; ```
-; dh = how many sectors
-; bx =
-; ```
-; Usage
+; Read `dh` sectors from disk `dl` into memory, starting at the second
+; sector (in our case, after the bootloader).
 ;
-; ```
-; mov dx, 0x1fb6
-; call disk_load
-; ```
+; TODO: more generic
 ;
 disk_load:
-  ; push dx onto the stack (how many sectors were requested)
-  push dx
+  push dx ; preserve requested number of sectors across BIOS call
 
-  ; BIOS read sector function
-  mov ah, 0x02
+  mov ah, 0x02 ; BIOS read sector function
+  mov al, dh   ; read dh sectors
+  mov ch, 0x00 ; select cylinder 0
+  mov dh, 0x00 ; select head 0
+  mov cl, 0x02 ; start reading from the second sector (after the bootloader)
+  int 0x13     ; execute BIOS call
 
-  ; read dh sectors
-  mov al, dh
+  jc .read_error ; jump if read error
 
-  ; select cylinder 0
-  mov ch, 0x00
-
-  ; select head 0
-  mov dh, 0x00
-
-  ; start reading from the second sector (after the bootloader)
-  mov cl, 0x02
-
-  ; BIOS interrupt
-  int 0x13
-
-  ; jump if read error
-  jc disk_read_error
-
-  ; restore dx from the stack
-  pop dx
+  pop dx ; restore number of sectors
 
   ; if sectors read (al) != sectors expected (dh), raise an error
   cmp dh, al
-  jne disk_sectors_error
+  jne .sectors_error
 
-  ; return from subroutine
+.return:
   ret
 
-disk_read_error:
-  mov bx, data.newline
-  call io.print
-
+.read_error:
+  bios.print_newline
   mov bx, data.disk_read_err_msg
   call io.print
 
-  jmp disk_error
+  jmp .disk_error
 
-disk_sectors_error:
-  mov bx, data.newline
-  call io.print
-
+.sectors_error:
+  bios.print_newline
   mov bx, data.disk_sectors_err_msg
   call io.print
 
-  jmp disk_error
+  jmp .disk_error
 
-disk_error:
-  mov bx, data.newline
-  call io.print
-
+.disk_error:
+  bios.print_newline
   mov bx, data.disk_sectors_err_msg
   call io.print
 
-  ; halt here
-  jmp $
+  jmp $ ; halt
 
 data.disk_read_err_msg:    db "[disk error]: read", 0
 data.disk_sectors_err_msg: db "[disk error]: sectors read != sectors expected", 0
