@@ -28,7 +28,6 @@ int atoi(char *str) {
     n += c;  // add this digit
     c = *str++; // get next char ('0' if end of input)
   }
-  // neg n
   if (neg)
     n = -1 * n;
 
