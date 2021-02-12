@@ -6,13 +6,23 @@
 char newline[] = "\n";
 
 
+// Get a character of input, echo as typed.
+//
+#define io_getc(c) getchar(c)
+
+
+// Print the character c.
+//
+#define io_putc(c) putchar(c)
+
+
 // Print the null-terminated string `str`.
 //
 int io_print(char *str) {
   char c;
 
   while (c = *str++)
-    putchar(c);
+    io_putc(c);
 }
 
 
@@ -31,12 +41,15 @@ int io_puts(char *str) {
 char *io_readline(char *str) {
   char c;
 
-  while (c = getchar(), c != '\n')
+  while (c = io_getc(), c != '\n')
     *str++ = c;
 
   return str;
 }
 
+
+// Print a number `n` in hexadecimal.
+//
 int io_print_hex(int n) {
   char *stack = malloc(25 * sizeof(char)),
        c;
@@ -57,14 +70,14 @@ int io_print_hex(int n) {
   } while (n > 0);
   stack--;
 
-  putchar('0');
-  putchar('x');
+  io_putc('0');
+  io_putc('x');
 
   while (i >= 0) {
     // pop
     c = *stack--;
     i--;
-    putchar(c);
+    io_putc(c);
   }
 }
 
