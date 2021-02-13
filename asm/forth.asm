@@ -40,6 +40,7 @@ forth_exec_word:
 
   ret
 
+
 ; Execute a forth program whose null-terminated string is
 ; located in address `bx`.
 ;
@@ -152,6 +153,3 @@ data.forth_start_msg:
   13, 10, "Example:", \
   13, 10, "  : hi cr .", 34, 32, "Hello, World!", 34, " ;", \
   13, 10, 0
-
-; tmp
-data.hex_result_msg:  db "hex: ", 0
