@@ -129,3 +129,31 @@ io.print_hex:
   add al, 0x7 ; convert 0-9+ into A-F
   add al, 32  ; use lowercase letters
   jmp .after_convert_to_letter
+
+
+%macro if_equal_jmp 3
+  cmp %1, %2
+  je %3
+%endmacro
+
+
+; Skip whitespace in a null-terminated string whose current
+; character's address is located in `bx`.
+;
+io.skip_whitespace:
+  push ax
+
+.next_char:
+  mov al, [bx] ; ax = <this char>
+
+  if_equal_jmp al, 0,  .return ; \0
+
+  inc bx       ; bx = <next char>
+
+  if_equal_jmp al, 9,  .next_char ; \t
+  if_equal_jmp al, 10, .next_char ; \n
+  if_equal_jmp al, 13, .next_char ; \r
+  if_equal_jmp al, 32, .next_char ; space
+.return:
+  pop ax
+  ret
