@@ -95,8 +95,8 @@ io.print_hex:
 
   add al, '0' ; convert to ASCII
   cmp al, '9' ; convert 9+ into A-F
-  jg .add_0x7
-.after_add_0x7:
+  jg .convert_to_letter
+.after_convert_to_letter:
 
   push ax ; push character
   inc cx
@@ -125,6 +125,7 @@ io.print_hex:
   pop bx
   pop ax
   ret
-.add_0x7:
-  add al, 0x7
-  jmp .after_add_0x7
+.convert_to_letter:
+  add al, 0x7 ; convert 0-9+ into A-F
+  add al, 32  ; use lowercase letters
+  jmp .after_convert_to_letter

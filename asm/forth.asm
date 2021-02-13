@@ -2,6 +2,7 @@
 
 [bits 16]
 
+
 ;-----------------
 ; Forth is a simple stack-based language.
 ;
@@ -14,20 +15,22 @@
 ; - [Build Your Own (Cross-) Assembler....in Forth](http://www.bradrodriguez.com/papers/tcjassem.txt)
 ;----------------
 
+
 %macro if_equal_jmp 3
   cmp %1, %2
   je %3
 %endmacro
 
+
 ; Execute a WORD whose null-terminated name string is located in
-; address `bx`, and whose length is in `dx`.
+; address `bx`.
 ;
 forth_exec_word:
   push bx
   push dx
 
-  ; call io.puts
   call io.atoi
+  call io.puts
 
   call io.print_hex
   bios.print_newline
