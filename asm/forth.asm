@@ -26,8 +26,8 @@ forth_exec_word:
   call io.atoi
   call io.puts
 
-  ; call io.print_hex
-  ; bios.print_newline
+  call io.print_hex
+  bios.print_newline
 
   pop dx
   pop bx
@@ -97,28 +97,22 @@ forth_repl:
   call io.print
 
 .loop:
-  ; clear the current line's memory (erase old line)
-  mov bx, data.forth_input
-  ; todo: separate subroutine to zero out a string
-  mov dword [bx], 0 ; zero out first 4 bytes
+  mov bx, data.forth_input ; erase line
+  mov byte [bx], 0
 
-  ; Read a line of user input
   call io.readline
 
   ; If we entered a blank line, start input over
   mov al, [data.forth_input]
   if_equal_jmp al, 0, .noinput ; \0
 
-  mov bx, data.newline
-  call io.print
-
+  bios.print_newline
   mov bx, data.forth_input
   call forth_exec
 
   jmp .continue
 .noinput:
-  mov bx, data.newline
-  call io.print
+  bios.print_newline
 .continue:
   mov bx, data.forth_prompt
   call io.print
