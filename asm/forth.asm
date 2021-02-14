@@ -43,18 +43,16 @@ forth_exec_word:
 forth_exec:
   push bx
   push cx ; start of current word
-  push dx ; word length
 
   call io.skip_whitespace
 .next_word:
   mov cx, bx ; cx = string start address
-  xor dx, dx ; dx = 0
 
 .next_char:
   mov al, [bx] ; ax = <this char>
 
   ; exit if at end of string
-  if_equal_jmp al, 0, .leave ; \0
+  if_equal_jmp al, 0, .return ; \0
 
   if_equal_jmp al, 9,  .endword ; \t
   if_equal_jmp al, 10, .endword ; \n
@@ -62,35 +60,24 @@ forth_exec:
   if_equal_jmp al, 32, .endword ; space
 
   inc bx       ; bx = <next char>
-  inc dx       ; dx += 1
   jmp .next_char
 
 .endword:
   mov byte [bx], 0 ; replace whitespace with null byte
 
-  ; print word, then a newline
+  ; execute word
   push bx
   mov bx, cx
   call forth_exec_word
   pop bx
 
 .skip_whitespace:
-   inc bx       ; bx = <next char>
-   mov al, [bx] ; ax = <this char>
-   mov cx, bx   ; update start of word match
-
-  ; exit if at end of string
-  if_equal_jmp al, 0, .leave ; \0
-
-  if_equal_jmp al, 9,  .skip_whitespace ; \t
-  if_equal_jmp al, 10, .skip_whitespace ; \n
-  if_equal_jmp al, 13, .skip_whitespace ; \r
-  if_equal_jmp al, 32, .skip_whitespace ; space
-
+  inc bx     ; bx = <next char>
+  mov cx, bx ; update start of word match
+  call io.skip_whitespace
+  if_equal_jmp al, 0, .return ; \0
   jmp .next_word
-
-.leave:
-  pop dx
+.return:
   pop bx
   pop cx
   ret
