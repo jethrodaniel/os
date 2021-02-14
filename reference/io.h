@@ -44,7 +44,7 @@ char *io_readline(char *str) {
   while (c = io_getc(), c != '\n')
     *str++ = c;
 
-  *str++ = 0; // terminate with null byte
+  *str = 0; // terminate with null byte
 
   return str;
 }
@@ -53,13 +53,8 @@ char *io_readline(char *str) {
 // Print a number `n` in hexadecimal.
 //
 void io_print_hex(int n) {
-  char *stack = NULL,
+  char *stack = malloc(25),
        c;
-
-  if ((stack = malloc(25)) == NULL) {
-    perror("malloc");
-    return NULL;
-  }
 
   int i, digit;
 
@@ -81,7 +76,7 @@ void io_print_hex(int n) {
   io_putc('0');
   io_putc('x');
 
-  while (i >= 0) {
+  while (i > 0) {
     // pop
     c = *stack--;
     i--;
