@@ -54,101 +54,192 @@ number?:
 
 ; http://www.retroprogramming.com/2012/04/itsy-forth-dictionary-and-inner.html
 
-%define link 0
-%define immediate 080h
+;%define link 0
+;%define immediate 080h
 
-%macro head 4
-  %%link dw link
-  %define link %%link
-  %strlen %%count %1
-  db %3 + %%count,%1
-  xt_ %+ %2 dw %4
+;%macro head 4
+;  %%link dw link
+;  %define link %%link
+;  %strlen %%count %1
+;  db %3 + %%count,%1
+;  xt_ %+ %2 dw %4
+;%endmacro
+
+;%macro primitive 2-3 0
+;  head %1,%2,%3,$+2
+;%endmacro
+
+;; %macro colon 2-3 0
+;;   head %1,%2,%3,docolon
+;; %endmacro
+
+;%macro constant 3
+;  head %1,%2,0,doconst
+;  val_ %+ %2 dw %3
+;%endmacro
+
+;; %macro variable 3
+;;   head %1,%2,0,dovar
+;;   val_ %+ %2 dw %3
+;; %endmacro
+
+
+;; sp - data stack pointer
+;; bp - return stack pointer
+;; si - instruction pointer
+;; di - pointer to current XT (execution token)
+;; bx - TOS (top of data stack)
+
+
+;; Forth starts this on boot:
+;;
+;;   : quit ( -- ) begin reset query interpret again ;
+;;
+;quit:
+
+;; Clear the stacks.
+;;
+;reset:
+
+;; Read a line from user input or from disk.
+;;
+;query:
+
+
+;; https://www.forth.com/starting-forth/1-forth-stacks-dictionary/
+
+;; ( -- ) scan the input stream, lookup and execute each word
+;;
+;; Scan the input stream for whitespace-seperated words. For each word,
+;; look it up in the dictionary.
+;;
+;; If present, call `execute`, then print `ok`.
+;; If not present, call `number`
+;;
+;interpret:
+
+;; Check if the current word is a number.
+;;
+;; If so, push it's number value onto the stack.
+;; Otherwise, print an error message.
+;;
+;number:
+
+;; ( -- ) execute the definition of the current word, echo `ok`
+;;
+;;
+;execute:
+
+
+;; https://wiki.c2.com/?ForthLanguage
+
+;; Lookup the current word name in the dictionary
+;find:
+
+
+;; (x y -- z) calculate z=x+y then return z
+;;
+;word_plus:
+;  db 0
+;  db "+", 0
+;word_plus_code:
+;  pop bx
+;  pop ax
+;  add bx, ax
+
+
+;; https://github.com/sayon/forthress/blob/master/src/words.inc
+
+;%define _link 0
+
+;; ```
+;; native "+", plus
+;;   pop ax
+;;   add [sp], ax
+;;   jmp next
+;; ```
+;;
+;; 1 - word name
+;; 2 - word label name
+;; 3 - flags
+;;
+;%macro native 3
+;  wh_ %+ %2:             ; wh_plus:               ; header label
+;    db _link             ;  db _link              ;  link
+;    db %1, 0             ;  db "+", 0             ;  word name
+;    db %3                ;  db 0                  ;  flags
+
+;  %define _link wh_%+ %2 ; %define _link, wh_plus ; update link var
+;  xt_ %+ %2:             ; xt_plus:               ; CFA label
+;    db i_ %+ %2          ;  db i_plus             ;   address of code
+;    i_ %+ %2:            ;  i_plus:               ;   executable code
+;%endmacro
+
+;%macro native 2
+;  native %1, %2, 0
+;%endmacro
+
+
+;; %define pc
+;; %define w r14
+;; %define rstack bp
+
+;; ( y x -- [ x + y ] )
+;native "+", plus
+;  pop ax
+;  add [sp], ah
+;  jmp next
+
+;state: resw 1
+
+;; return stack end-----;
+;resw 50                ;
+;rstack_start: resw 1   ;
+;; return stack start---;
+
+
+
+;; Initialization routine.
+;;
+;native "init", init
+;  mov word [state], 0
+;  mov rstack, rstack_start
+;  mov pc, interpreter_stub
+;  cmp qword [stack_base], 0
+;  je  .first
+;  mov rsp, [stack_base]
+;  jmp next
+;  .first:
+;  mov [stack_base], rsp
+;  jmp next
+
+
+
+;next: ; inner interpreter, fetches next word to execute
+;  mov w, pc
+;  add pc, 8
+;  mov w, [w]
+;  jmp [w]
+
+;boot:
+;  jmp i_init
+
+
+%macro NEXT 0
+  mov ax, [si]
+  add si, 4
+  jmp [ax]
 %endmacro
 
-%macro primitive 2-3 0
-  head %1,%2,%3,$+2
+%macro PUSHRSP 1
+  lea bp, [bp - 4]  ; push reg onto return stack
+  mov [bp], %1
 %endmacro
 
-; %macro colon 2-3 0
-;   head %1,%2,%3,docolon
-; %endmacro
-
-%macro constant 3
-  head %1,%2,0,doconst
-  val_ %+ %2 dw %3
+%macro PUSHRSP 1
+  mov %1, [bp]
+  lea bp, [bp + 4]  ; push top of return stack to reg
 %endmacro
-
-; %macro variable 3
-;   head %1,%2,0,dovar
-;   val_ %+ %2 dw %3
-; %endmacro
-
-
-; sp - data stack pointer
-; bp - return stack pointer
-; si - instruction pointer
-; di - pointer to current XT (execution token)
-; bx - TOS (top of data stack)
-
-
-; Forth starts this on boot:
-;
-;   : quit ( -- ) begin reset query interpret again ;
-;
-quit:
-
-; Clear the stacks.
-;
-reset:
-
-; Read a line from user input or from disk.
-;
-query:
-
-
-; https://www.forth.com/starting-forth/1-forth-stacks-dictionary/
-
-; ( -- ) scan the input stream, lookup and execute each word
-;
-; Scan the input stream for whitespace-seperated words. For each word,
-; look it up in the dictionary.
-;
-; If present, call `execute`, then print `ok`.
-; If not present, call `number`
-;
-interpret:
-
-; Check if the current word is a number.
-;
-; If so, push it's number value onto the stack.
-; Otherwise, print an error message.
-;
-number:
-
-; ( -- ) execute the definition of the current word, echo `ok`
-;
-;
-execute:
-
-
-; https://wiki.c2.com/?ForthLanguage
-
-; Lookup the current word name in the dictionary
-find:
-
-
-; (x y -- z) calculate z=x+y then return z
-;
-word_plus:
-  db 0
-  db "+", 0
-word_plus_code:
-  pop bx
-  pop ax
-  add bx, ax
-
-
-
 
 
 
@@ -160,7 +251,19 @@ forth_exec_word:
   push bx
   push dx
 
+  ; call find?
+  ; mov dx, ax
+  ; call io.print_hex
+  ; bios.print_newline
+
   call number?
+  cmp ax, 0
+  je .err_not_a_number
+
+  call io.atoi
+  call io.print_hex
+  bios.print_newline
+
   mov dx, ax
   call io.print_hex
   bios.print_newline
@@ -168,13 +271,19 @@ forth_exec_word:
   ; call io.atoi
   ; call io.puts
 
-  ; call io.print_hex
-  ; bios.print_newline
-
+.return:
   pop dx
   pop bx
   pop ax
   ret
+.err_not_a_number:
+  push bx
+  mov bx, data.forth_err_not_a_number_msg
+  call io.puts
+  pop bx
+  jmp .return
+
+data.forth_err_not_a_number_msg: db "error: not a number", 0
 
 
 ; Execute a forth program whose null-terminated string is
