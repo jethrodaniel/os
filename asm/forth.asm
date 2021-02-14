@@ -36,10 +36,10 @@
 ;   head %1,%2,%3,docolon
 ; %endmacro
 
-; %macro constant 3
-;   head %1,%2,0,doconst
-;   val_ %+ %2 dw %3
-; %endmacro
+%macro constant 3
+  head %1,%2,0,doconst
+  val_ %+ %2 dw %3
+%endmacro
 
 ; %macro variable 3
 ;   head %1,%2,0,dovar
@@ -161,6 +161,200 @@ primitive 'execute', execute
   mov di, bx
   pop bx
   jmp word [di]
+
+
+; Execution token for constants
+;
+doconst:
+  push bx
+  mov bx, word [di + 2]
+  jmp next
+
+
+; Execution token for variables
+dovar:
+  push bx
+  lea bx, [di + 2]
+  jmp next
+
+
+; ( -- addr) address of the input buffer
+;
+constant 'tib', t_i_b, 32768
+
+
+; ( -- n) number of characters in the input buffer
+;
+variable '#tib', number_t_i_b, 0
+
+
+;  ( -- c) next character in input buffer
+variable '>in', to_in, 0
+
+
+; ( -- bool) true = compiling, false = interpreting
+;
+variable 'state', state, 0
+
+
+; ( -- addr) first free cell in the dictionary
+;
+variable 'dp', dp, freemem
+
+
+; ( -- base) number base
+;
+variable 'base', base, 10
+
+
+; ( -- addr) the last word to be defined
+;
+variable 'last', last, final
+
+
+; ( x -- ) compile x to the current definition
+
+primitive ',', comma
+  mov ax, word [val_dp]
+  xchg ax, bx
+  add word [val_dp], 2
+  mov word [bx], ax
+  pop bx
+  jmp next
+
+
+;  (char -- ) compile char to the current definition
+;
+primitive 'c, ', c_comma
+  mov ax, word [val_dp]
+  xchg ax, bx
+  inc word [val_dp]
+  mov byte [bx], al
+  pop bx
+  jmp next
+
+
+; ( -- ) push the value in the cell straight after lit
+;
+primitive 'lit', lit
+  push bx
+  lodsw
+  xchg ax, bx
+  jmp next
+
+
+; (x y -- z) calculate z=x+y then return z
+;
+primitive '+', plus
+  pop ax
+  add bx, ax
+  jmp next
+
+
+; (x y -- flag) return true if x=y
+;
+primitive '=', equals
+  pop ax
+  sub bx, ax
+  sub bx, 1
+  sbb bx, bx
+  jmp next
+
+
+; (addr len -- len2) read a string from the terminal
+;
+primitive 'accept', accept
+  pop di
+  xor cx, cx
+acceptl:
+  call getchar
+  cmp al, 8
+  jne acceptn
+  jcxz acceptb
+  call outchar
+  mov al, ' '
+  call outchar
+  mov al, 8
+  call outchar
+  dec cx
+  dec di
+  jmp acceptl
+acceptn:
+  cmp al, 13
+  je acceptz
+  cmp cx, bx
+  jne accepts
+acceptb:
+  mov al, 7
+  call outchar
+  jmp acceptl
+accepts:
+  stosb
+  inc cx
+  call outchar
+  jmp acceptl
+acceptz:
+  jcxz acceptb
+  mov al, 13
+  call outchar
+  mov al, 10
+  call outchar
+  mov bx, cx
+  jmp next
+getchar:
+  mov ah, 7
+  int 021h
+  mov ah, 0
+  ret
+
+outchar:
+  xchg ax, dx
+  mov ah, 2
+  int 021h
+  ret
+
+primitive 'word', word
+   mov di, word [val_dp]
+   push di
+   mov dx, bx
+   mov bx, word [val_t_i_b]
+   mov cx, bx
+   add bx, word [val_to_in]
+   add cx, word [val_number_t_i_b]
+wordf:
+  cmp cx, bx
+  je wordz
+  mov al, byte [bx]
+  inc bx
+  cmp al, dl
+  je wordf
+wordc:
+  inc di
+   mov byte [di], al
+   cmp cx, bx
+   je wordz
+   mov al, byte [bx]
+   inc bx
+   cmp al, dl
+   jne wordc
+wordz:
+  mov byte [di+1], 32
+  mov ax, word [val_dp]
+  xchg ax, di
+  sub ax, di
+  mov byte [di], al
+  sub bx, word [val_t_i_b]
+  mov word [val_to_in], bx
+  pop bx
+  jmp next
+
+primitive 'emit', emit
+  xchg ax, bx
+  call outchar
+  pop bx
+  jmp next
+
+
 
 
 ; -------------
