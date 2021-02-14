@@ -142,18 +142,19 @@ io.print_hex:
 ;
 io.skip_whitespace:
   push ax
-
-.next_char:
+.load:
   mov al, [bx] ; ax = <this char>
-
+.eof?:
   if_equal_jmp al, 0,  .return ; \0
-
-  inc bx       ; bx = <next char>
-
-  if_equal_jmp al, 9,  .next_char ; \t
-  if_equal_jmp al, 10, .next_char ; \n
-  if_equal_jmp al, 13, .next_char ; \r
-  if_equal_jmp al, 32, .next_char ; space
+.whitespace?:
+  if_equal_jmp al, 9,  .next ; \t
+  if_equal_jmp al, 10, .next ; \n
+  if_equal_jmp al, 13, .next ; \r
+  if_equal_jmp al, 32, .next ; space
+  jmp .return
+.next:
+  inc bx ; bx = <next char>
+  jmp .load
 .return:
   pop ax
   ret

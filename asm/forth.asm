@@ -16,12 +16,6 @@
 ;----------------
 
 
-%macro if_equal_jmp 3
-  cmp %1, %2
-  je %3
-%endmacro
-
-
 ; Execute a WORD whose null-terminated name string is located in
 ; address `bx`.
 ;
@@ -32,12 +26,11 @@ forth_exec_word:
   call io.atoi
   call io.puts
 
-  call io.print_hex
-  bios.print_newline
+  ; call io.print_hex
+  ; bios.print_newline
 
   pop dx
   pop bx
-
   ret
 
 
@@ -47,16 +40,16 @@ forth_exec_word:
 ; The string is split by whitespace into words, each of which is
 ; executed by `forth_exec_word`, as it's split.
 ;
-; TODO: handle issue with leading whitespace before first word
-;
 forth_exec:
   push bx
   push cx ; start of current word
   push dx ; word length
 
+  call io.skip_whitespace
 .next_word:
   mov cx, bx ; cx = string start address
   xor dx, dx ; dx = 0
+
 .next_char:
   mov al, [bx] ; ax = <this char>
 
@@ -145,8 +138,8 @@ forth_repl:
   jmp .loop
 
 
-data.forth_prompt:    db "? ", 0
-data.forth_input:     resb 25 ; characters of user input
+data.forth_prompt: db "? ", 0
+data.forth_input:  resb 25 ; characters of user input
 data.forth_start_msg:
   db "forth| Started forth...", \
   13, 10, \

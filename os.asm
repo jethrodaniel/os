@@ -130,12 +130,11 @@ dw 0xaa55             ; Tack the magic 2-byte constant at the end
 ;
 ;-------------------------------------------------
 
-
 data.stage1:
   mov bx, data.ok_msg
   call io.puts
 
-  call forth_repl
+  ; call forth_repl
 
   mov bx, data.forth_example
   call forth_exec
@@ -144,9 +143,7 @@ data.stage1:
   call io.print
   jmp $
 
-
 %include "asm/forth.asm"
-
 
 data.stage1_end_msg: db "stage1| Error - returned from forth", 0
 data.forth_example:  incbin "hi.fs"
