@@ -108,7 +108,6 @@ data.stage0_msg:     db "stage0| BIOS has loaded stage0.", 0
 data.stage1_msg:     db "stage0| Loading stage1...", 0
 data.stage0_end_msg: db 10, 13, "stage0| Error - returned from stage1."
 data.ok_msg:         db " ok", 0
-data.newline:        db 10, 13, 0
 data.boot_drive:     db 0
 
 
