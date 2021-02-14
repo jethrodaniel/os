@@ -3,6 +3,43 @@
 [bits 16]
 
 
+; Check if string in `bx` is a valid integer, if so, leave `1`
+; in `ax`, else `0`.
+;
+number?:
+  push ax
+  push bx
+
+  ; fail on empty string
+  mov al, [bx] ; load character
+  cmp al, 0    ; exit if at end of string
+  je .return_false
+
+.next_char:
+  mov al, [bx] ; load character
+  inc bx       ; move to next character
+
+  cmp al, 0 ; exit if at end of string
+  je .return_true
+
+  cmp al, '9'
+  jle .ge_zero
+
+.return_false:
+  pop bx
+  pop ax
+  mov ax, 0
+  ret
+.ge_zero:
+  cmp al, '0'
+  jge .next_char
+.return_true:
+  pop bx
+  pop ax
+  mov ax, 1
+  ret
+
+
 ;-----------------
 ; Forth is a simple stack-based language.
 ;
@@ -53,328 +90,90 @@
 ; di - pointer to current XT (execution token)
 ; bx - TOS (top of data stack)
 
-; `:`, the XT to enter a Forth word.
+
+; Forth starts this on boot:
 ;
-docolon:
-  dec bp
-  dec bp
-  mov word [bp], si ; save IP on the return stack
-  lea si, [di + 2]  ; move IP to the word being entered
-
-
-; Return from a primitive word, then call the next XT.
+;   : quit ( -- ) begin reset query interpret again ;
 ;
-next:
-  lodsw
-  xchg di, ax
-  jmp word [di]
+quit:
 
-
-; Return from a compiled Forth word.
+; Clear the stacks.
 ;
-; ( -- ) return from the current word
+reset:
+
+; Read a line from user input or from disk.
 ;
-primitive 'exit', exit
-  mov si, word [bp] ; recover IP from the return stack
-  inc bp
-  inc bp
-  jmp next
+query:
 
 
-; (addr -- x) read x from addr
+; https://www.forth.com/starting-forth/1-forth-stacks-dictionary/
+
+; ( -- ) scan the input stream, lookup and execute each word
 ;
-primitive '@', fetch
-  mov bx, word [bx]
-  jmp next
-
-
-; (x addr -- ) store x at addr
+; Scan the input stream for whitespace-seperated words. For each word,
+; look it up in the dictionary.
 ;
-primitive '!',store
-  pop word [bx]
-  pop bx
-  jmp next
-
-
-; (addr -- char) read char from addr
+; If present, call `execute`, then print `ok`.
+; If not present, call `number`
 ;
-primitive 'c@', c_fetch
-  mov bl, byte [bx]
-  mov bh, 0
-  jmp next
+interpret:
 
-
-; (x -- ) remove x from the stack
+; Check if the current word is a number.
 ;
-primitive 'drop', drop
-  pop bx
-  jmp next
-
-
-; (x -- x x) add a copy of x to the stack
+; If so, push it's number value onto the stack.
+; Otherwise, print an error message.
 ;
-primitive 'dup', dupe
-  push bx
-  jmp next
+number:
 
-
-; (x y -- y x) exchange x and y
-primitive 'swap', swap
-  pop ax
-  push bx
-  xchg ax, bx
-  jmp next
-
-
-; (x y z -- y z x) rotate x, y, and z
+; ( -- ) execute the definition of the current word, echo `ok`
 ;
-primitive 'rot', rote
-  pop dx
-  pop ax
-  push dx
-  push bx
-  xchg ax,bx
-  jmp next
-
-; (x -- ) jump if x is zero
 ;
-primitive '0branch', zero_branch
-  lodsw
-  test bx, bx
-  jne zerob_z
-  xchg ax, si
-zerob_z:
-  pop bx
-  jmp next
+execute:
 
 
-; ( -- ) unconditional jump
-;
-primitive 'branch', branch
-  mov si, word [si]
-  jmp next
+; https://wiki.c2.com/?ForthLanguage
 
-
-; (xt -- ) call the word at xt
-;
-primitive 'execute', execute
-  mov di, bx
-  pop bx
-  jmp word [di]
-
-
-; Execution token for constants
-;
-doconst:
-  push bx
-  mov bx, word [di + 2]
-  jmp next
-
-
-; Execution token for variables
-dovar:
-  push bx
-  lea bx, [di + 2]
-  jmp next
-
-
-; ( -- addr) address of the input buffer
-;
-constant 'tib', t_i_b, 32768
-
-
-; ( -- n) number of characters in the input buffer
-;
-variable '#tib', number_t_i_b, 0
-
-
-;  ( -- c) next character in input buffer
-variable '>in', to_in, 0
-
-
-; ( -- bool) true = compiling, false = interpreting
-;
-variable 'state', state, 0
-
-
-; ( -- addr) first free cell in the dictionary
-;
-variable 'dp', dp, freemem
-
-
-; ( -- base) number base
-;
-variable 'base', base, 10
-
-
-; ( -- addr) the last word to be defined
-;
-variable 'last', last, final
-
-
-; ( x -- ) compile x to the current definition
-
-primitive ',', comma
-  mov ax, word [val_dp]
-  xchg ax, bx
-  add word [val_dp], 2
-  mov word [bx], ax
-  pop bx
-  jmp next
-
-
-;  (char -- ) compile char to the current definition
-;
-primitive 'c, ', c_comma
-  mov ax, word [val_dp]
-  xchg ax, bx
-  inc word [val_dp]
-  mov byte [bx], al
-  pop bx
-  jmp next
-
-
-; ( -- ) push the value in the cell straight after lit
-;
-primitive 'lit', lit
-  push bx
-  lodsw
-  xchg ax, bx
-  jmp next
+; Lookup the current word name in the dictionary
+find:
 
 
 ; (x y -- z) calculate z=x+y then return z
 ;
-primitive '+', plus
+word_plus:
+  db 0
+  db "+", 0
+word_plus_code:
+  pop bx
   pop ax
   add bx, ax
-  jmp next
-
-
-; (x y -- flag) return true if x=y
-;
-primitive '=', equals
-  pop ax
-  sub bx, ax
-  sub bx, 1
-  sbb bx, bx
-  jmp next
-
-
-; (addr len -- len2) read a string from the terminal
-;
-primitive 'accept', accept
-  pop di
-  xor cx, cx
-acceptl:
-  call getchar
-  cmp al, 8
-  jne acceptn
-  jcxz acceptb
-  call outchar
-  mov al, ' '
-  call outchar
-  mov al, 8
-  call outchar
-  dec cx
-  dec di
-  jmp acceptl
-acceptn:
-  cmp al, 13
-  je acceptz
-  cmp cx, bx
-  jne accepts
-acceptb:
-  mov al, 7
-  call outchar
-  jmp acceptl
-accepts:
-  stosb
-  inc cx
-  call outchar
-  jmp acceptl
-acceptz:
-  jcxz acceptb
-  mov al, 13
-  call outchar
-  mov al, 10
-  call outchar
-  mov bx, cx
-  jmp next
-getchar:
-  mov ah, 7
-  int 021h
-  mov ah, 0
-  ret
-
-outchar:
-  xchg ax, dx
-  mov ah, 2
-  int 021h
-  ret
-
-primitive 'word', word
-   mov di, word [val_dp]
-   push di
-   mov dx, bx
-   mov bx, word [val_t_i_b]
-   mov cx, bx
-   add bx, word [val_to_in]
-   add cx, word [val_number_t_i_b]
-wordf:
-  cmp cx, bx
-  je wordz
-  mov al, byte [bx]
-  inc bx
-  cmp al, dl
-  je wordf
-wordc:
-  inc di
-   mov byte [di], al
-   cmp cx, bx
-   je wordz
-   mov al, byte [bx]
-   inc bx
-   cmp al, dl
-   jne wordc
-wordz:
-  mov byte [di+1], 32
-  mov ax, word [val_dp]
-  xchg ax, di
-  sub ax, di
-  mov byte [di], al
-  sub bx, word [val_t_i_b]
-  mov word [val_to_in], bx
-  pop bx
-  jmp next
-
-primitive 'emit', emit
-  xchg ax, bx
-  call outchar
-  pop bx
-  jmp next
 
 
 
 
-; -------------
 
 
 ; Execute a WORD whose null-terminated name string is located in
 ; address `bx`.
 ;
 forth_exec_word:
+  push ax
   push bx
   push dx
 
-  call io.atoi
-  call io.puts
-
+  call number?
+  mov dx, ax
   call io.print_hex
   bios.print_newline
 
+  ; call io.atoi
+  ; call io.puts
+
+  ; call io.print_hex
+  ; bios.print_newline
+
   pop dx
   pop bx
+  pop ax
   ret
 
 
