@@ -15,6 +15,156 @@
 ; - [Build Your Own (Cross-) Assembler....in Forth](http://www.bradrodriguez.com/papers/tcjassem.txt)
 ;----------------
 
+; http://www.retroprogramming.com/2012/04/itsy-forth-dictionary-and-inner.html
+
+%define link 0
+%define immediate 080h
+
+%macro head 4
+  %%link dw link
+  %define link %%link
+  %strlen %%count %1
+  db %3 + %%count,%1
+  xt_ %+ %2 dw %4
+%endmacro
+
+%macro primitive 2-3 0
+  head %1,%2,%3,$+2
+%endmacro
+
+; %macro colon 2-3 0
+;   head %1,%2,%3,docolon
+; %endmacro
+
+; %macro constant 3
+;   head %1,%2,0,doconst
+;   val_ %+ %2 dw %3
+; %endmacro
+
+; %macro variable 3
+;   head %1,%2,0,dovar
+;   val_ %+ %2 dw %3
+; %endmacro
+
+
+; sp - data stack pointer
+; bp - return stack pointer
+; si - instruction pointer
+; di - pointer to current XT (execution token)
+; bx - TOS (top of data stack)
+
+; `:`, the XT to enter a Forth word.
+;
+docolon:
+  dec bp
+  dec bp
+  mov word [bp], si ; save IP on the return stack
+  lea si, [di + 2]  ; move IP to the word being entered
+
+
+; Return from a primitive word, then call the next XT.
+;
+next:
+  lodsw
+  xchg di, ax
+  jmp word [di]
+
+
+; Return from a compiled Forth word.
+;
+; ( -- ) return from the current word
+;
+primitive 'exit', exit
+  mov si, word [bp] ; recover IP from the return stack
+  inc bp
+  inc bp
+  jmp next
+
+
+; (addr -- x) read x from addr
+;
+primitive '@', fetch
+  mov bx, word [bx]
+  jmp next
+
+
+; (x addr -- ) store x at addr
+;
+primitive '!',store
+  pop word [bx]
+  pop bx
+  jmp next
+
+
+; (addr -- char) read char from addr
+;
+primitive 'c@', c_fetch
+  mov bl, byte [bx]
+  mov bh, 0
+  jmp next
+
+
+; (x -- ) remove x from the stack
+;
+primitive 'drop', drop
+  pop bx
+  jmp next
+
+
+; (x -- x x) add a copy of x to the stack
+;
+primitive 'dup', dupe
+  push bx
+  jmp next
+
+
+; (x y -- y x) exchange x and y
+primitive 'swap', swap
+  pop ax
+  push bx
+  xchg ax, bx
+  jmp next
+
+
+; (x y z -- y z x) rotate x, y, and z
+;
+primitive 'rot', rote
+  pop dx
+  pop ax
+  push dx
+  push bx
+  xchg ax,bx
+  jmp next
+
+; (x -- ) jump if x is zero
+;
+primitive '0branch', zero_branch
+  lodsw
+  test bx, bx
+  jne zerob_z
+  xchg ax, si
+zerob_z:
+  pop bx
+  jmp next
+
+
+; ( -- ) unconditional jump
+;
+primitive 'branch', branch
+  mov si, word [si]
+  jmp next
+
+
+; (xt -- ) call the word at xt
+;
+primitive 'execute', execute
+  mov di, bx
+  pop bx
+  jmp word [di]
+
+
+; -------------
+
 
 ; Execute a WORD whose null-terminated name string is located in
 ; address `bx`.
