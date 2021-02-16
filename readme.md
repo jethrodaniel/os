@@ -21,6 +21,20 @@ MIT.
 
 ### references
 
+thanks y'all.
+
+#### bootstraping
+
+- https://github.com/nineties/amber
+- https://github.com/oriansj/stage0
+
+#### compilers
+
+- http://schemeworkshop.org/2006/11-ghuloum.pdf
+- http://sinclairql.speccy.org/archivo/docs/books/Threaded_interpretive_languages.pdf
+
+#### etc
+
 - https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
 - https://github.com/cfenollosa/os-tutorial
 - https://pdos.csail.mit.edu/6.828/2011/schedule.html
@@ -36,5 +50,3 @@ MIT.
 - https://github.com/nornagon/jonesforth/blob/master/jonesforth.S
 - https://www.forth.com/starting-forth/0-starting-forth/
 - https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html
-
-thanks y'all.
