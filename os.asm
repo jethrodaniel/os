@@ -133,16 +133,16 @@ data.stage1:
   mov bx, data.ok_msg
   call io.puts
 
-  call forth_repl
+  call monitor_repl
 
-  mov bx, data.forth_example
-  call forth_exec
+  mov bx, data.monitor_example
+  call monitor_exec
 
   mov bx, data.stage1_end_msg
   call io.print
   jmp $
 
-%include "asm/forth.asm"
+%include "asm/monitor.asm"
 
-data.stage1_end_msg: db "stage1| Error - returned from forth", 0
-data.forth_example:  incbin "hi.fs"
+data.stage1_end_msg:  db "stage1| Error - returned from monitor", 0
+data.monitor_example: incbin "example.monitor"

@@ -127,7 +127,7 @@ io.print_hex:
   ret
 .convert_to_letter:
   add al, 0x7 ; convert 0-9+ into A-F
-  add al, 32  ; use lowercase letters
+  ; add al, 32  ; use lowercase letters
   jmp .after_convert_to_letter
 
 
