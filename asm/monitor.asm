@@ -42,6 +42,30 @@ number?:
 data.print: db "print!", 0
 data.write: db "write!", 0
 
+; Print memory contents of the address whose null-terminated
+; string is located in `bx`.
+;
+monitor_print:
+  push bx
+  push dx
+
+  push bx
+  mov bx, data.print
+  call io.puts
+  pop bx
+
+  inc bx
+  call io.atoi
+  mov bx, dx
+  mov dx, [bx]
+  call io.print_hex
+  bios.print_newline
+
+  pop dx
+  pop bx
+  ret
+
+
 ; Execute a WORD whose null-terminated name string is located in
 ; address `bx`.
 ;
@@ -53,20 +77,7 @@ monitor_exec_word:
   mov al, [bx]
   cmp al, 'p'
   jne .not_p
-  push bx
-    mov bx, data.print
-    call io.puts
-  pop bx
-  push bx
-  push dx
-    inc bx
-    call io.atoi
-    mov bx, dx
-    mov dx, [bx]
-    call io.print_hex
-    bios.print_newline
-  pop dx
-  pop bx
+  call monitor_print
 
 .not_p:
 
