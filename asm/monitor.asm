@@ -40,6 +40,7 @@ number?:
   ret
 
 data.print: db "print!", 0
+data.write: db "write!", 0
 
 ; Execute a WORD whose null-terminated name string is located in
 ; address `bx`.
@@ -68,6 +69,27 @@ monitor_exec_word:
   pop bx
 
 .not_p:
+
+  mov al, [bx]
+  cmp al, 'w'
+  jne .not_w
+  push bx
+    mov bx, data.write
+    call io.puts
+  pop bx
+  push bx
+  push dx
+    inc bx
+    call io.atoi
+    mov bx, dx
+    mov [7e00h], bx
+    ; call io.print_hex
+    bios.print_newline
+  pop dx
+  pop bx
+
+
+.not_w:
 
   ; call number?
   ; cmp ax, 0
