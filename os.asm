@@ -50,6 +50,7 @@
 ;
 [org 0x7c00]
 
+test: db 42, 42
 
 ; Entry-point
 ;

@@ -39,8 +39,9 @@ number?:
   mov ax, 1
   ret
 
-data.print: db "print!", 0
-data.write: db "write!", 0
+; 0xaa: ...
+data.print: db ": ", 0
+data.write: db ": ", 0
 
 ; Print memory contents of the address whose null-terminated
 ; string is located in `bx`.
@@ -49,16 +50,40 @@ monitor_print:
   push bx
   push dx
 
+  inc bx            ; eat the `p`
+  call io.atoi      ; place start address in `dx`
+  call io.print_hex ; print start address
+
   push bx
   mov bx, data.print
-  call io.puts
+  call io.print
   pop bx
 
-  inc bx
   call io.atoi
   mov bx, dx
   mov dx, [bx]
   call io.print_hex
+  bios.print_newline
+
+  pop dx
+  pop bx
+  ret
+
+; Write to memory starting at the address whose null-terminated
+; string is located in `bx`.
+;
+monitor_write:
+  push bx
+  push dx
+
+  inc bx            ; eat the `w`
+  call io.atoi      ; place start address in `dx`
+  call io.print_hex ; print start address
+
+  ; todo: actually pass in data
+  ;
+  mov bx, dx
+  mov [bx], byte 32   ; write value to start address
   bios.print_newline
 
   pop dx
@@ -84,21 +109,7 @@ monitor_exec_word:
   mov al, [bx]
   cmp al, 'w'
   jne .not_w
-  push bx
-    mov bx, data.write
-    call io.puts
-  pop bx
-  push bx
-  push dx
-    inc bx
-    call io.atoi
-    mov bx, dx
-    mov [7e00h], bx
-    ; call io.print_hex
-    bios.print_newline
-  pop dx
-  pop bx
-
+  call monitor_write
 
 .not_w:
 
