@@ -50,6 +50,7 @@ monitor_print:
   push bx
   push dx
 
+  inc bx                       ; eat the `p`
   call io.skip_whitespace      ; skip leading whitespace
   mov al, [bx]                 ; check first character
   if_equal_jmp al, 0, .err_eof ; \0 (end of program)
@@ -93,22 +94,41 @@ data.err_eof_msg:        db "expected an address, got end of input", 0
 ;
 monitor_write:
   push bx
+  push cx
   push dx
 
-  ; ; inc bx            ; eat the `w`
-  call io.atoi      ; place start address in `dx`
-  call io.print_hex ; print start address
+  inc bx                       ; eat the `w`
+  call io.skip_whitespace      ; skip leading whitespace
+  call io.atoi                 ; place start address in `dx`
+  call io.print_hex            ; print start address
+  mov cx, dx
+
+  ; call io.skip_non_whitespace      ; skip leading whitespace
+  call io.skip_whitespace  ; skip whitespace between bytes
+  mov al, [bx] ; load next character
+  if_equal_jmp al, 0, .err_no_bytes ; \0 (end of program)
+
+  ; call io.atoi                 ; place start address in `dx`
+  bios.print_newline
+  call io.print
+  ; call io.print_hex            ; print start address
 
   ; todo: actually pass in data
   ;
-  mov bx, dx
-  mov [bx], word 43828   ; write value to start address
+  mov bx, cx
+  mov [7c00h], dx   ; write value to start address
   bios.print_newline
-
+.return:
   pop dx
+  pop cx
   pop bx
   ret
-
+.err_no_bytes
+  bios.print_newline
+  mov bx, data.err_no_bytes_msg
+  call io.puts
+  jmp .return
+data.err_no_bytes_msg: db "expected bytes for `w`", 0
 
 ; Execute a monitor program whose null-terminated string is
 ; located in address `bx`.
@@ -128,19 +148,8 @@ monitor_exec:
   mov al, [bx]                ; check first character
   if_equal_jmp al, 0, .return ; \0 (end of program)
 
-  cmp al, 'p'
-  jne .notp
-  inc bx ; eat the `p`
-  call monitor_print
-  .notp:
-  ; if_equal_call al, 'p', monitor_print ;
-
-  cmp al, 'w'
-  jne .notw
-  inc bx ; eat the `w`
-  call monitor_write
-  .notw:
-  ; if_equal_call al, 'w', monitor_write ;
+  if_equal_call al, 'p', monitor_print
+  if_equal_call al, 'w', monitor_write
 
 .return:
   pop cx
@@ -206,8 +215,7 @@ monitor_repl:
 
 
 data.monitor_prompt: db "? ", 0
-; data.monitor_input:  resb 25 ; characters of user input
-data.monitor_input:  db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+data.monitor_input:  resb 25 ; characters of user input
 data.monitor_start_msg:
   db "monitor| Started monitor...", \
   13, 10, \

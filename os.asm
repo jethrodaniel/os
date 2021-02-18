@@ -90,8 +90,9 @@ data.stage0:
 ; Helpers
 ;
 %include "asm/io.asm"
-%include "asm/atoi.asm"
 %include "asm/disk_load.asm"
+%include "asm/atoi.asm"
+; %include "asm/lex.asm"
 
 
 ; Load up more space from disk, then jump to stage 1.
