@@ -26,12 +26,17 @@ thanks y'all.
 #### bootstraping
 
 - https://github.com/nineties/amber
+  - https://speakerdeck.com/nineties/creating-a-language-using-only-assembly-language
 - https://github.com/oriansj/stage0
+- https://github.com/mmastrac/bootstrap
 
 #### compilers
 
 - http://schemeworkshop.org/2006/11-ghuloum.pdf
 - http://sinclairql.speccy.org/archivo/docs/books/Threaded_interpretive_languages.pdf
+- http://www.davidsalomon.name/assem.advertis/asl.pdf
+- http://users.telenet.be/kim1-6502/6502/absb.html
+- https://github.com/nornagon/jonesforth/blob/master/jonesforth.S
 
 #### etc
 
@@ -47,6 +52,5 @@ thanks y'all.
 - https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64
 - https://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/
 - http://www.jamesmolloy.co.uk/tutorial_html/index.html
-- https://github.com/nornagon/jonesforth/blob/master/jonesforth.S
 - https://www.forth.com/starting-forth/0-starting-forth/
 - https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html

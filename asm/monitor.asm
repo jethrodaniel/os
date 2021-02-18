@@ -135,6 +135,12 @@ data.monitor_err_not_a_number_msg: db "error: not a number", 0
 ; Execute a monitor program whose null-terminated string is
 ; located in address `bx`.
 ;
+; ```
+; p42        print contents of address `0x42`
+; w42 1 2    write bytes `0x1` and `0x2` starting at address `0x42`
+; g42        `jmp` to address `0x42`
+; ```
+;
 ; The string is split by whitespace into words, each of which is
 ; executed by `monitor_exec_word`, as it's split.
 ;
