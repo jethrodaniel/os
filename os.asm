@@ -45,6 +45,9 @@
 [bits 16]
 
 
+%include "asm/macros.asm"
+
+
 ; Add a global offset, so we don't have to add 0x7c00 to all
 ; the addresses.
 ;
@@ -136,8 +139,11 @@ data.stage1:
 
   call monitor_repl
 
-  mov bx, data.monitor_example
-  call monitor_exec
+  ; mov bx, data.monitor_example
+  ; call monitor_exec
+
+  ; mov bx, dtest
+  ; call monitor_print
 
   mov bx, data.stage1_end_msg
   call io.print
@@ -145,5 +151,8 @@ data.stage1:
 
 %include "asm/monitor.asm"
 
+; dtest: db "43828", 0 ; ab34
+dtest: db "2", 13, 0
+
 data.stage1_end_msg:  db "stage1| Error - returned from monitor", 0
-data.monitor_example: incbin "example.monitor"
+data.monitor_example: incbin "stage2.monitor"

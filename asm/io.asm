@@ -63,17 +63,26 @@ io.puts:
 ;
 io.readline:
   push ax
+  push bx
 .loop:
   bios.read_char_into_al
 
   mov [bx], al ; load next character
+  if_equal_jmp al, 0, .done ; \0 (end of program)
   inc bx       ; move to next character
 
   bios.print_char_in_al
 
   cmp al, 13  ; exit if \r
   jne .loop
+  dec bx
+  mov word [bx], 0
+  ; je .done
+  ; cmp al, 10  ; exit if \n
+  ; je .done
+  ; jmp .loop
 .done:
+  pop bx
   pop ax
   ret
 
@@ -130,11 +139,6 @@ io.print_hex:
   ; add al, 32  ; use lowercase letters
   jmp .after_convert_to_letter
 
-
-%macro if_equal_jmp 3
-  cmp %1, %2
-  je %3
-%endmacro
 
 
 ; Skip whitespace in a null-terminated string whose current

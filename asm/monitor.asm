@@ -50,7 +50,15 @@ monitor_print:
   push bx
   push dx
 
-  inc bx            ; eat the `p`
+  call io.skip_whitespace      ; skip leading whitespace
+  mov al, [bx]                 ; check first character
+  if_equal_jmp al, 0, .err_eof ; \0 (end of program)
+
+  call number?       ; expect a number
+  cmp ax, 0
+  je .err_not_number
+
+  ; mov bx, dtest
   call io.atoi      ; place start address in `dx`
   call io.print_hex ; print start address
 
@@ -59,15 +67,26 @@ monitor_print:
   call io.print
   pop bx
 
-  call io.atoi
-  mov bx, dx
-  mov dx, [bx]
-  call io.print_hex
+  ; call io.atoi
+  ; mov bx, dx
+  ; mov dx, [bx]
+  ; call io.print_hex
   bios.print_newline
-
+.return:
   pop dx
   pop bx
   ret
+.err_not_number
+  mov bx, data.err_not_number_msg
+  call io.puts
+  jmp .return
+.err_eof
+  mov bx, data.err_eof_msg
+  call io.puts
+  jmp .return
+
+data.err_not_number_msg: db "addresses must be numbers", 0
+data.err_eof_msg:        db "expected an address, got end of input", 0
 
 ; Write to memory starting at the address whose null-terminated
 ; string is located in `bx`.
@@ -83,53 +102,12 @@ monitor_write:
   ; todo: actually pass in data
   ;
   mov bx, dx
-  mov [bx], byte 32   ; write value to start address
+  mov [bx], byte 42   ; write value to start address
   bios.print_newline
 
   pop dx
   pop bx
   ret
-
-
-; Execute a WORD whose null-terminated name string is located in
-; address `bx`.
-;
-monitor_exec_word:
-  push ax
-  push bx
-  push dx
-
-  mov al, [bx]
-  cmp al, 'p'
-  jne .not_p
-  call monitor_print
-
-.not_p:
-
-  mov al, [bx]
-  cmp al, 'w'
-  jne .not_w
-  call monitor_write
-
-.not_w:
-
-  ; call number?
-  ; cmp ax, 0
-  ; je .err_not_a_number
-
-.return:
-  pop dx
-  pop bx
-  pop ax
-  ret
-.err_not_a_number:
-  push bx
-  mov bx, data.monitor_err_not_a_number_msg
-  call io.puts
-  pop bx
-  jmp .return
-
-data.monitor_err_not_a_number_msg: db "error: not a number", 0
 
 
 ; Execute a monitor program whose null-terminated string is
@@ -141,49 +119,27 @@ data.monitor_err_not_a_number_msg: db "error: not a number", 0
 ; g42        `jmp` to address `0x42`
 ; ```
 ;
-; The string is split by whitespace into words, each of which is
-; executed by `monitor_exec_word`, as it's split.
-;
 monitor_exec:
+  push ax
   push bx
   push cx ; start of current word
 
-  call io.skip_whitespace
-.next_word:
-  mov cx, bx ; cx = string start address
+  call io.skip_whitespace     ; skip leading whitespace
+  mov al, [bx]                ; check first character
+  if_equal_jmp al, 0, .return ; \0 (end of program)
 
-.next_char:
-  mov al, [bx] ; ax = <this char>
+  ; if_equal_call al, 'p', monitor_print ;
+  cmp al, 'p'
+  jne .notp
+  inc bx ; eat the `p`
+  call monitor_print
+  .notp:
+  ; if_equal_call al, 'w', monitor_write ;
 
-  ; exit if at end of string
-  if_equal_jmp al, 0, .return ; \0
-
-  if_equal_jmp al, 9,  .endword ; \t
-  if_equal_jmp al, 10, .endword ; \n
-  if_equal_jmp al, 13, .endword ; \r
-  if_equal_jmp al, 32, .endword ; space
-
-  inc bx       ; bx = <next char>
-  jmp .next_char
-
-.endword:
-  mov byte [bx], 0 ; replace whitespace with null byte
-
-  ; execute word
-  push bx
-  mov bx, cx
-  call monitor_exec_word
-  pop bx
-
-.skip_whitespace:
-  inc bx     ; bx = <next char>
-  mov cx, bx ; update start of word match
-  call io.skip_whitespace
-  if_equal_jmp al, 0, .return ; \0
-  jmp .next_word
 .return:
-  pop bx
   pop cx
+  pop bx
+  pop ax
   ret
 
 
@@ -202,17 +158,37 @@ monitor_repl:
 
 .loop:
   mov bx, data.monitor_input ; erase line
-  mov byte [bx], 0
+  mov word [bx], 0
 
   call io.readline
+
+  ; push bx
+  ;   bios.print_newline
+  ;   mov bx, data.monitor_input
+  ;   call io.puts
+  ; pop bx
+
+  push bx
+  push dx
+
+    ; mov bx, dtest
+    ; mov byte [bx + 1], '1'
+    ; mov bx, dtest
+    ; mov bx, data.monitor_input
+    call io.atoi
+    bios.print_newline
+    call io.print_hex
+    bios.print_newline
+  pop dx
+  pop bx
 
   ; If we entered a blank line, start input over
   mov al, [data.monitor_input]
   if_equal_jmp al, 0, .noinput ; \0
 
-  bios.print_newline
-  mov bx, data.monitor_input
-  call monitor_exec
+  ; bios.print_newline
+  ; mov bx, data.monitor_input
+  ; call monitor_exec
 
   jmp .continue
 .noinput:
@@ -224,7 +200,8 @@ monitor_repl:
 
 
 data.monitor_prompt: db "? ", 0
-data.monitor_input:  resb 25 ; characters of user input
+; data.monitor_input:  resb 25 ; characters of user input
+data.monitor_input:  db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 data.monitor_start_msg:
   db "monitor| Started monitor...", \
   13, 10, \
