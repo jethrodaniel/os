@@ -151,8 +151,8 @@ data.stage1:
 
 %include "asm/monitor.asm"
 
-; dtest: db "43828", 0 ; ab34
-dtest: db "2", 13, 0
+dtest: db "43828", 0 ; ab34
+; dtest: db "2", 13, 0
 
 data.stage1_end_msg:  db "stage1| Error - returned from monitor", 0
 data.monitor_example: incbin "stage2.monitor"

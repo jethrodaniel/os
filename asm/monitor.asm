@@ -67,10 +67,9 @@ monitor_print:
   call io.print
   pop bx
 
-  ; call io.atoi
-  ; mov bx, dx
-  ; mov dx, [bx]
-  ; call io.print_hex
+  mov bx, dx
+  mov dx, [bx]
+  call io.print_hex
   bios.print_newline
 .return:
   pop dx
@@ -88,6 +87,7 @@ monitor_print:
 data.err_not_number_msg: db "addresses must be numbers", 0
 data.err_eof_msg:        db "expected an address, got end of input", 0
 
+
 ; Write to memory starting at the address whose null-terminated
 ; string is located in `bx`.
 ;
@@ -95,14 +95,14 @@ monitor_write:
   push bx
   push dx
 
-  inc bx            ; eat the `w`
+  ; ; inc bx            ; eat the `w`
   call io.atoi      ; place start address in `dx`
   call io.print_hex ; print start address
 
   ; todo: actually pass in data
   ;
   mov bx, dx
-  mov [bx], byte 42   ; write value to start address
+  mov [bx], word 43828   ; write value to start address
   bios.print_newline
 
   pop dx
@@ -128,12 +128,18 @@ monitor_exec:
   mov al, [bx]                ; check first character
   if_equal_jmp al, 0, .return ; \0 (end of program)
 
-  ; if_equal_call al, 'p', monitor_print ;
   cmp al, 'p'
   jne .notp
   inc bx ; eat the `p`
   call monitor_print
   .notp:
+  ; if_equal_call al, 'p', monitor_print ;
+
+  cmp al, 'w'
+  jne .notw
+  inc bx ; eat the `w`
+  call monitor_write
+  .notw:
   ; if_equal_call al, 'w', monitor_write ;
 
 .return:
@@ -162,33 +168,33 @@ monitor_repl:
 
   call io.readline
 
+  ; ; push bx
+  ; ;   bios.print_newline
+  ; ;   mov bx, data.monitor_input
+  ; ;   call io.puts
+  ; ; pop bx
+
   ; push bx
+  ; push dx
+
+  ;   ; mov bx, dtest
+  ;   ; mov byte [bx + 1], '1'
+  ;   ; mov bx, dtest
+  ;   ; mov bx, data.monitor_input
+  ;   call io.atoi
   ;   bios.print_newline
-  ;   mov bx, data.monitor_input
-  ;   call io.puts
+  ;   call io.print_hex
+  ;   bios.print_newline
+  ; pop dx
   ; pop bx
-
-  push bx
-  push dx
-
-    ; mov bx, dtest
-    ; mov byte [bx + 1], '1'
-    ; mov bx, dtest
-    ; mov bx, data.monitor_input
-    call io.atoi
-    bios.print_newline
-    call io.print_hex
-    bios.print_newline
-  pop dx
-  pop bx
 
   ; If we entered a blank line, start input over
   mov al, [data.monitor_input]
   if_equal_jmp al, 0, .noinput ; \0
 
-  ; bios.print_newline
-  ; mov bx, data.monitor_input
-  ; call monitor_exec
+  bios.print_newline
+  mov bx, data.monitor_input
+  call monitor_exec
 
   jmp .continue
 .noinput:
@@ -206,5 +212,5 @@ data.monitor_start_msg:
   db "monitor| Started monitor...", \
   13, 10, \
   13, 10, "Example:", \
-  13, 10, "  p7c00", \
+  13, 10, "  p31744", \
   13, 10, 0
