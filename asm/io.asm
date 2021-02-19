@@ -138,27 +138,3 @@ io.print_hex:
   add al, 0x7 ; convert 0-9+ into A-F
   ; add al, 32  ; use lowercase letters
   jmp .after_convert_to_letter
-
-
-
-; Skip whitespace in a null-terminated string whose current
-; character's address is located in `bx`.
-;
-io.skip_whitespace:
-  push ax
-.load:
-  mov al, [bx] ; ax = <this char>
-.eof?:
-  if_equal_jmp al, 0,  .return ; \0
-.whitespace?:
-  if_equal_jmp al, 9,  .next ; \t
-  if_equal_jmp al, 10, .next ; \n
-  if_equal_jmp al, 13, .next ; \r
-  if_equal_jmp al, 32, .next ; space
-  jmp .return
-.next:
-  inc bx ; bx = <next char>
-  jmp .load
-.return:
-  pop ax
-  ret

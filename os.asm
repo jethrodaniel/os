@@ -92,7 +92,6 @@ data.stage0:
 %include "asm/io.asm"
 %include "asm/disk_load.asm"
 %include "asm/atoi.asm"
-; %include "asm/lex.asm"
 
 
 ; Load up more space from disk, then jump to stage 1.
@@ -101,7 +100,7 @@ data.stage0:
 ;
 load_stage1:
   mov bx, data.stage1
-  mov dh, 5
+  mov dh, 15
   mov dl, [data.boot_drive]
   call disk_load
   ret
@@ -150,6 +149,7 @@ data.stage1:
   call io.print
   jmp $
 
+%include "asm/lex.asm"
 %include "asm/monitor.asm"
 
 dtest: db "43828", 0 ; ab34
